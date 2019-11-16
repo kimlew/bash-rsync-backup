@@ -9,12 +9,13 @@
 # Author: Kim Lew
 
 # Display user prompts of what to enter.
-echo "Type the source directory path & include specific directory\
+# Test with:  /Users/kimlew/Sites/bash_projects/test_rsync
+echo "Type the source directory path & include specific sub-directory\
 (/Users/kimlew/Documents):"
 read source_path
 
-echo "Type the destination directory path but LEAVE OFF specific directory name\
-( /Volumes/Toshiba\ Ext\ Drv/):"
+echo "Type the destination directory path but LEAVE OFF specific sub-directory\
+(/Volumes/Toshiba\ Ext\ Drv/):"
 read destination_path
 
 echo "Source path you typed is: $source_path"
@@ -35,7 +36,6 @@ fi
 
 echo "File sync in progress..."
 echo "..."
-rsync -av $source $destination
+rsync -av "$source_path" "$destination_path"
 
-done
-echo "Done."
+echo "Sync is done."
