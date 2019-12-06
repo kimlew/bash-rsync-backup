@@ -21,6 +21,12 @@ read destination_path
 echo "Source path you typed is: $source_path"
 echo "Destination path you typed is: $destination_path"
 
+# TODO: Add a trailing \ to the source to ONLY copy the contents.
+# TODO: Use -update - so ONLY transfers new or changed files.
+# TODO: Delete? old files on destination directory, e.g., Git Essent Train Ch 1.
+
+# TEST directory & file: test_rsync/test_rsync.txt
+
 # Check for valid directory path for source.
 # Check for valid directory path for destination.
 if [ ! -d "$source_path" ] 
@@ -33,6 +39,9 @@ then
     echo "This directory does NOT exist."
     exit 1
 fi
+
+# TODO: $source_path_contents = $source_path.\
+# TODO: rsync $source_path $destination_path
 
 echo "File sync in progress..."
 echo "..."
