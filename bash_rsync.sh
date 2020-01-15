@@ -2,9 +2,11 @@
 #
 # Name: bash_rsync.sh
 #
-# Brief: Bash script with user prompts so user does not forget what to enter as
-# source and destination, since it is a bit tricky. Otherwise, you can easily
-# end up with extra sub-directories you did not want.
+# Brief: Bash script that uses rsync to backup files & folders from computer 
+# to external hard drive, USB drive, etc. 
+# - Script includes user prompts, since including or excluding a trailing / 
+# is tricky when entering the source and destination/target.
+# - Prevents user from ending up with extra unwanted sub-directories.
 #
 # Author: Kim Lew
 

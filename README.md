@@ -1,7 +1,7 @@
-## Bash script to sync folders and files on local drive to external hard drive
+## Bash script using rsync to backup folders and files on local drive to external device
 
 Name: ```bash_rsync.sh```
 
-Bash script with user prompts so user does not forget what to enter as source 
-and destination, since it is a bit tricky. Otherwise, you can easily end up 
-with extra directories you did not want.
+Bash script that uses rsync to backup files and folders from computer to external hard drive, USB drive, etc. 
+- Script includes user prompts since including or excluding a trailing / is tricky when entering the source and destination/target.
+- Otherwise, use can easily end up with extra unwanted sub-directories.
