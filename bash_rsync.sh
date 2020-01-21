@@ -20,23 +20,22 @@
 echo "Type source directory path WITH specific sub-directory & LEAVE OFF trailing /."
 echo "(Example: /Users/kimlew/Documents):"
 read source_path
-echo "Type destination directory path WITHOUT sub-directory & WITH trailing /."
-echo "(Example: /Volumes/KINGSTON/Documents/):"
+echo "Type destination directory path WITHOUT sub-directory & ADD a trailing /."
+echo "(Example: /Volumes/KINGSTON/):"
 read destination_path
 
 echo "Source you typed is: $source_path"
 echo "Destination you typed is: $destination_path"
 
-# Check for valid directory path for source.
-# Check for valid directory path for destination.
+# Check for valid directory paths for source & destination.
 if [ ! -d "$source_path" ]
 then
-    echo "This directory does NOT exist."
+    echo "This source directory does NOT exist."
     exit 1
 fi
 if [ ! -d "$destination_path" ]
 then
-    echo "This directory does NOT exist."
+    echo "This destination directory does NOT exist."
     exit 1
 fi
 
