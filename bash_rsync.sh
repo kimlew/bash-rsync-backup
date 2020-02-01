@@ -44,6 +44,4 @@ fi
 
 echo "File sync in progress..."
 echo "..."
-rsync -av "$source_path" "$destination_path"
-
-echo "Sync is done."
+rsync -av "$source_path" "$destination_path" && echo "Sync is done."
