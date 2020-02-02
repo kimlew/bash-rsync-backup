@@ -2,25 +2,27 @@
 #
 # Name: bash_rsync.sh
 #
-# Brief: Bash script that uses rsync to backup files & folders from computer 
-# to external hard drive, USB drive, etc. 
+# Brief: Bash script that uses rsync to backup files from a specific directory  
+# on computer to external hard drive, USB drive, etc. 
 # - Script includes user prompts, since including or excluding a trailing / 
-# is tricky when entering the source and destination/target.
-# - Prevents user from ending up with extra unwanted sub-directories.
+# is tricky, when entering the source & destination/target.
+# - Prevents: Creation of unwanted duplicated sub-directories.
 #
 # Author: Kim Lew
 
-# Display user prompts of what to enter to prevent creating extra sub-directories.
-# For the source: 
-# Enter the specific sub-directory WITHOUT /. rsync is smart enough to
-# create the sub-directory if it doesn't exist & transfers contents. 
-# If sub-directory already exists, rsync transfers contents. 
-# For the destination/target: 
-# You do NOT need to state specific sub-directory BUT you do need /.
-echo "Type source directory path WITH specific sub-directory & LEAVE OFF trailing /."
+# For SOURCE: 
+# State the specific sub-directory WITHOUT /.
+# For DESTINATION (target): 
+# Do NOT state specific sub-directory, BUT add a /.
+
+# Note: rsync is smart enough to create the sub-directory, if it doesn't already
+# exist, & transfers contents. 
+# If sub-directory already exists, rsync just transfers contents.
+
+echo "Type SOURCE directory path, WITH specific sub-directory & LEAVE OFF trailing /."
 echo "(Example: /Users/kimlew/Documents):"
 read source_path
-echo "Type destination directory path WITHOUT sub-directory & ADD a trailing /."
+echo "Type DESTINATION directory path, WITHOUT sub-directory & ADD a trailing /."
 echo "(Example: /Volumes/KINGSTON/):"
 read destination_path
 
@@ -41,7 +43,6 @@ fi
 
 # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
 # -v is verbose vs. -q, --quiet - to suppress non-error messages.
-
 echo "File sync in progress..."
 echo "..."
 rsync -av "$source_path" "$destination_path" && echo "Sync is done."
