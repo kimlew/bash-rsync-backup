@@ -2,40 +2,47 @@
 #
 # Name: bash_rsync.sh
 #
-# Brief: Bash script with user prompts so user does not forget what to enter as
-# source and destination, since it is a bit tricky. Otherwise, you can easily 
-# end up with extra directories you did not want. 
-# 
+# Brief: Bash script that uses rsync to backup files from a specific directory  
+# on computer to external hard drive, USB drive, etc. 
+# - Script includes user prompts, since including or excluding a trailing / 
+# is tricky, when entering the source & destination/target.
+# - Prevents: Creation of unwanted duplicated sub-directories.
+#
 # Author: Kim Lew
 
-# Display user prompts of what to enter.
-echo "Type the source directory path & include specific directory\
-(/Users/kimlew/Documents):"
-read source_path
+# For SOURCE: 
+# State the specific sub-directory WITHOUT /.
+# For DESTINATION (target): 
+# Do NOT state specific sub-directory, BUT add a /.
 
-echo "Type the destination directory path but LEAVE OFF specific directory name\
-( /Volumes/Toshiba\ Ext\ Drv/):"
+# Note: rsync is smart enough to create the sub-directory, if it doesn't already
+# exist, & transfers contents. 
+# If sub-directory already exists, rsync just transfers contents.
+
+echo "Type SOURCE directory path, WITH specific sub-directory & LEAVE OFF trailing /."
+echo "(Example: /Users/kimlew/Documents):"
+read source_path
+echo "Type DESTINATION directory path, WITHOUT sub-directory & ADD a trailing /."
+echo "(Example: /Volumes/KINGSTON/):"
 read destination_path
 
-echo "Source path you typed is: $source_path"
-echo "Destination path you typed is: $destination_path"
+echo "Source you typed is: $source_path"
+echo "Destination you typed is: $destination_path"
 
-# Check for valid directory path for source.
-# Check for valid directory path for destination.
-if [ ! -d "$source_path" ] 
+# Check for valid directory paths for source & destination.
+if [ ! -d "$source_path" ]
 then
-    echo "This directory does NOT exist."
+    echo "This source directory does NOT exist."
     exit 1
 fi
-if [ ! -d "$destination_path" ] 
+if [ ! -d "$destination_path" ]
 then
-    echo "This directory does NOT exist."
+    echo "This destination directory does NOT exist."
     exit 1
 fi
 
+# -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
+# -v is verbose vs. -q, --quiet - to suppress non-error messages.
 echo "File sync in progress..."
 echo "..."
-rsync -av $source $destination
-
-done
-echo "Done."
+rsync -av "$source_path" "$destination_path" && echo "Sync is done."
