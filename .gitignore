@@ -1,2 +1,3 @@
 *.log
 .DS_Store
+rsync_file_output.txt
