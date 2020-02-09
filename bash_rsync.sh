@@ -45,4 +45,5 @@ fi
 # -v is verbose vs. -q, --quiet - to suppress non-error messages.
 echo "File sync in progress..."
 echo "..."
-rsync -av "$source_path" "$destination_path" && echo "Sync is done."
+rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} "$source_path" \
+"$destination_path" && echo "Sync is done."
