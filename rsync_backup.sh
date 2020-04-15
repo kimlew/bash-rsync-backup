@@ -21,19 +21,36 @@
 
 # Limitation: Only 2 USB ports on laptop.
 
+# Check for valid directory paths for source & destination.
+check_source() {
+    if [ ! -d "$source_path" ]
+    then
+        echo "This source directory does NOT exist."
+        exit 1
+    fi
+    
+}
+check_destination() {
+    if [ ! -d "$destination_path" ]
+    then
+        echo "This destination directory does NOT exist."
+        exit 1
+    fi
+}
+
 while true
 do
     clear
 
     cat <<MENU
-    BACKUP from laptop to a storage device
-    --------------------------------------
-    1. Documents folder contents on laptop -> Red Toshiba, then Documents contents on laptop -> Blue Toshiba
-    2. PHOTOS folder contents on laptop -> Red Toshiba, then PHOTOS contents on laptop -> Blue Toshiba
-    3. Photos folder contents on Kingston USB -> Red Toshiba
-    4. Photos folder contents on Kingston USB -> Blue Toshiba
+    BACKUP Contents from a Directory on Laptop to a Storage Device
+    --------------------------------------------------------------
+    1. Backup from Documents -> Red Toshiba & Blue Toshiba
+    2. Backup from PHOTOS -> Red Toshiba & Blue Toshiba
+    3. Backup from directory on Kingston USB -> Red Toshiba
+    4. Backup from directory on Kingston USB -> Blue Toshiba
     0. Quit
-    ------------------------------------
+    --------------------------------------------------------------
 MENU
 
     # Custom user prompt. 
@@ -50,19 +67,42 @@ MENU
     echo "Source you typed is: $source_path"
     echo "Destination you typed is: $destination_path"
     '
-    read -r -p 
 
-    # Check for valid directory paths for source & destination.
-    if [ ! -d "$source_path" ]
-    then
-        echo "This source directory does NOT exist."
-        exit 1
-    fi
-    if [ ! -d "$destination_path" ]
-    then
-        echo "This destination directory does NOT exist."
-        exit 1
-    fi
+    read -r -p "Type an option number. Or type 0 or Q to exit: " option
+    case $option in
+      1)
+        echo "You chose option 1, Backup from Documents -> Red Toshiba & Blue Toshiba."
+        check_source
+        check_destination
+        break
+        ;;
+      2) 
+        echo "You chose option 2, Backup from PHOTOS -> Red Toshiba & Blue Toshiba."
+        check_source
+        check_destination
+        break
+        ;;
+      3)
+        echo "You chose option 3, Backup from directory on Kingston USB -> Red Toshiba."
+        check_source
+        check_destination
+        break
+        ;;
+      4) 
+        echo "You chose option 4, Backup from directory on Kingston USB -> Blue Toshiba"
+        check_source
+        check_destinationn
+        break
+        ;;
+      0 | [Qq])
+        echo "You chose option 0, to Quit."
+        break
+        ;;
+      *)
+        echo "Not a valid choice. Type a valid option number."
+        sleep 3
+        ;;
+  esac
 
     # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
     # -v is verbose vs. -q, --quiet - to suppress non-error messages.
