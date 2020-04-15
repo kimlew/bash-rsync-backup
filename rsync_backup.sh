@@ -1,4 +1,4 @@
- #! /usr/bin/env bash
+#! /usr/bin/env bash
 #
 # Name: bash_rsync.sh
 #
@@ -23,49 +23,53 @@
 
 while true
 do
-  clear
-  cat <<MENU
-  BACKUP from laptop to a storage device
-  --------------------------------------
-  1. Documents folder contents on laptop -> Red Toshiba, then Documents contents on laptop -> Blue Toshiba
-  2. PHOTOS folder contents on laptop -> Red Toshiba, then PHOTOS contents on laptop -> Blue Toshiba
-  3. Photos folder contents on Kingston USB -> Red Toshiba
-  4. Photos folder contents on Kingston USB -> Blue Toshiba
-  0. Quit
-  ------------------------------------
+    clear
+
+    cat <<MENU
+    BACKUP from laptop to a storage device
+    --------------------------------------
+    1. Documents folder contents on laptop -> Red Toshiba, then Documents contents on laptop -> Blue Toshiba
+    2. PHOTOS folder contents on laptop -> Red Toshiba, then PHOTOS contents on laptop -> Blue Toshiba
+    3. Photos folder contents on Kingston USB -> Red Toshiba
+    4. Photos folder contents on Kingston USB -> Blue Toshiba
+    0. Quit
+    ------------------------------------
 MENU
-# Custom user prompt. 
-PS3="Which backup are you doing? Type 1 to 4, or 0 to quit: "
-:'
-echo "Type SOURCE directory path, WITH specific sub-directory & LEAVE OFF trailing /."
-echo "(Example: /Users/kimlew/Documents):"
-read source_path
-echo "Type DESTINATION directory path, WITHOUT sub-directory & ADD a trailing /."
-echo "(Example: /Volumes/KINGSTON/):"
-read destination_path
 
-echo "Source you typed is: $source_path"
-echo "Destination you typed is: $destination_path"
-'
-read -r -p 
+    # Custom user prompt. 
+    PS3="Which backup are you doing? Type 1 to 4, or 0 to quit: "
+    
+    :'
+    echo "Type SOURCE directory path, WITH specific sub-directory & LEAVE OFF trailing /."
+    echo "(Example: /Users/kimlew/Documents):"
+    read source_path
+    echo "Type DESTINATION directory path, WITHOUT sub-directory & ADD a trailing /."
+    echo "(Example: /Volumes/KINGSTON/):"
+    read destination_path
 
-# Check for valid directory paths for source & destination.
-if [ ! -d "$source_path" ]
-then
-    echo "This source directory does NOT exist."
-    exit 1
-fi
-if [ ! -d "$destination_path" ]
-then
-    echo "This destination directory does NOT exist."
-    exit 1
-fi
+    echo "Source you typed is: $source_path"
+    echo "Destination you typed is: $destination_path"
+    '
+    read -r -p 
 
-# -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
-# -v is verbose vs. -q, --quiet - to suppress non-error messages.
-echo "File sync in progress..."
-echo "..."
-rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} "$source_path" \
-"$destination_path" && echo "Sync is done."
+    # Check for valid directory paths for source & destination.
+    if [ ! -d "$source_path" ]
+    then
+        echo "This source directory does NOT exist."
+        exit 1
+    fi
+    if [ ! -d "$destination_path" ]
+    then
+        echo "This destination directory does NOT exist."
+        exit 1
+    fi
 
+    # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
+    # -v is verbose vs. -q, --quiet - to suppress non-error messages.
+    echo "File sync in progress..."
+    echo "..."
+    rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} "$source_path" \
+    "$destination_path" && echo "Sync is done."
 done
+
+exit 0
