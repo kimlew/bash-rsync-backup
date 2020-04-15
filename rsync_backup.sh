@@ -19,6 +19,24 @@
 # exist, & transfers contents. 
 # If sub-directory already exists, rsync just transfers contents.
 
+# Limitation: Only 2 USB ports on laptop.
+
+while true
+do
+  clear
+  cat <<MENU
+  BACKUP from laptop to a storage device
+  --------------------------------------
+  1. Documents folder contents on laptop -> Red Toshiba, then Documents contents on laptop -> Blue Toshiba
+  2. PHOTOS folder contents on laptop -> Red Toshiba, then PHOTOS contents on laptop -> Blue Toshiba
+  3. Photos folder contents on Kingston USB -> Red Toshiba
+  4. Photos folder contents on Kingston USB -> Blue Toshiba
+  0. Quit
+  ------------------------------------
+MENU
+# Custom user prompt. 
+PS3="Which backup are you doing? Type 1 to 4, or 0 to quit: "
+:'
 echo "Type SOURCE directory path, WITH specific sub-directory & LEAVE OFF trailing /."
 echo "(Example: /Users/kimlew/Documents):"
 read source_path
@@ -28,6 +46,8 @@ read destination_path
 
 echo "Source you typed is: $source_path"
 echo "Destination you typed is: $destination_path"
+'
+read -r -p 
 
 # Check for valid directory paths for source & destination.
 if [ ! -d "$source_path" ]
@@ -47,3 +67,5 @@ echo "File sync in progress..."
 echo "..."
 rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} "$source_path" \
 "$destination_path" && echo "Sync is done."
+
+done
