@@ -28,7 +28,6 @@ check_source() {
         echo "This source directory does NOT exist."
         exit 1
     fi
-    
 }
 check_destination() {
     if [ ! -d "$destination_path" ]
@@ -47,8 +46,8 @@ do
     --------------------------------------------------------------
     1. Backup from Documents -> Red Toshiba & Blue Toshiba
     2. Backup from PHOTOS -> Red Toshiba & Blue Toshiba
-    3. Backup from directory on Kingston USB -> Red Toshiba
-    4. Backup from directory on Kingston USB -> Blue Toshiba
+    3. Backup from directory on Black Kingston USB -> Red Toshiba
+    4. Backup from directory on Black Kingston USB -> Blue Toshiba
     0. Quit
     --------------------------------------------------------------
 MENU
@@ -73,10 +72,10 @@ MENU
 
     source_path_Documents="/Users/kimlew/Documents"
     source_path_PHOTOS="/Users/kimlew/PHOTOS"
-    source_path_black_usb="/Users/kimlew/KINGSTON16"
+    source_path_black_usb="/Volumes/Kingston16/"
     
-    dest_red="/VOLUMES/ToshibaRD"
-    dest_blue="/VOLUMES/ToshibaBL"
+    dest_red="/Volumes/ToshibaRD"
+    dest_blue="/Volumes/ToshibaBL"
 
     case $option in
       1)
