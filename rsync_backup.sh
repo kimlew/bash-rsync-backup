@@ -71,33 +71,34 @@ MENU
     # -p - execute read using prompt
     read -r -p "Type an option number. Or type 0 or Q to exit: " option
 
-        source_path_Documents="/Users/kimlew/Documents"
-        source_path_PHOTOS="/Users/kimlew/PHOTOS"
-        source_path_black_usb="/Users/kimlew/KINGSTON16"
-        
-        destination_red="/VOLUMES/ToshibaRD"
-        destination_blue="/VOLUMES/ToshibaBL"
+    source_path_Documents="/Users/kimlew/Documents"
+    source_path_PHOTOS="/Users/kimlew/PHOTOS"
+    source_path_black_usb="/Users/kimlew/KINGSTON16"
+    
+    dest_red="/VOLUMES/ToshibaRD"
+    dest_blue="/VOLUMES/ToshibaBL"
+
     case $option in
       1)
         echo "You chose option 1, Backup from Documents -> Red Toshiba & Blue Toshiba."
         source_path_Documents_valid=$(check_source "$source_path_Documents")
-        destination_path_red_valid=$(check_destination "$destination_red")
-        destination_path_blue_valid=$(check_destination "$destination_blue")
+        dest_path_red_valid=$(check_dest "$dest_red")
+        dest_path_blue_valid=$(check_dest "$dest_blue")
 
-        if [[ "$source_path_Documents_valid" == true && "$destination_path_red_valid" == true ]]; then
+        if [[ "$source_path_Documents_valid" == true && "$dest_path_red_valid" == true ]]; then
             # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
             # -v is verbose vs. -q, --quiet - to suppress non-error messages.
             echo "Backup in progress..."
             echo "..."
             rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_Documents" "$destination_red" \
+            "$source_path_Documents" "$dest_red" \
             && echo "Done Documents backup to Red Toshiba."
         fi
-        if [[ "$source_path_Documents_valid" == true && "$destination_path_blue_valid" == true ]]; then
+        if [[ "$source_path_Documents_valid" == true && "$dest_path_blue_valid" == true ]]; then
             echo "Backup in progress..."
             echo "..."
             rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_Documents" "$destination_blue" \
+            "$source_path_Documents" "$dest_blue" \
             && echo "Done Documents backup to Blue Toshiba."
         fi
         break
@@ -105,23 +106,23 @@ MENU
       2) 
         echo "You chose option 2, Backup from PHOTOS -> Red Toshiba & Blue Toshiba."
         source_path_PHOTOS_valid=$(check_source "$source_path_PHOTOS")
-        destination_path_red_valid=$(check_destination "$destination_red")
-        destination_path_blue_valid=$(check_destination "$destination_blue")
+        dest_path_red_valid=$(check_dest "$dest_red")
+        dest_path_blue_valid=$(check_dest "$dest_blue")
 
-        if [[ "$source_path_PHOTOS_valid" == true && "$destination_path_red_valid" == true ]]; then
+        if [[ "$source_path_PHOTOS_valid" == true && "$dest_path_red_valid" == true ]]; then
             # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
             # -v is verbose vs. -q, --quiet - to suppress non-error messages.
             echo "Backup in progress..."
             echo "..."
             rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_PHOTOS" "$destination_red" \
+            "$source_path_PHOTOS" "$dest_red" \
             && echo "Done PHOTOS backup to Red Toshiba."
         fi
-        if [[ "$source_path_PHOTOS_valid" == true && "$destination_path_blue_valid" == true ]]; then
+        if [[ "$source_path_PHOTOS_valid" == true && "$dest_path_blue_valid" == true ]]; then
             echo "Backup in progress..."
             echo "..."
             rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_PHOTOS" "$destination_blue" \
+            "$source_path_PHOTOS" "$dest_blue" \
             && echo "Done PHOTOS backup to Blue Toshiba."
         fi
         break
@@ -129,13 +130,13 @@ MENU
       3)
         echo "You chose option 3, Backup from directory on Kingston USB -> Red Toshiba."
         source_path_black_usb_valid=$(check_source "$source_path_black_usb")
-        destination_path_red_valid=$(check_destination "$destination_red")
+        dest_path_red_valid=$(check_dest "$dest_red")
 
-        if [[ "$source_path_black_usb_valid" && "$destination_path_red_valid" == true ]]; then
+        if [[ "$source_path_black_usb_valid" && "$dest_path_red_valid" == true ]]; then
             echo "Backup in progress..."
             echo "..."
             rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_black_usb_valid" "$destination_path_red_valid" \
+            "$source_path_black_usb_valid" "$dest_path_red_valid" \
             && echo "Done backup from Black Kingston USB to Red Toshiba."
         fi
         break
@@ -143,13 +144,13 @@ MENU
       4) 
         echo "You chose option 4, Backup from directory on Kingston USB -> Blue Toshiba"
         source_path_black_usb_valid=$(check_source "$source_path_black_usb")
-        destination_path_blue_valid=$(check_destination "$$destination_blue")
+        dest_path_blue_valid=$(check_dest "$$dest_blue")
 
-        if [[ "$source_path_black_usb_valid" == true && "$destination_path_blue_valid" == true ]]; then
+        if [[ "$source_path_black_usb_valid" == true && "$dest_path_blue_valid" == true ]]; then
             echo "Backup in progress..."
             echo "..."
             rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_black_usb_valid" "$destination_path_blue_valid" \
+            "$source_path_black_usb_valid" "$dest_path_blue_valid" \
             && echo "Done backup from Black Kingston USB to Blue Toshiba."
         fi
         break
