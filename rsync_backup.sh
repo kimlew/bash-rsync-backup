@@ -81,8 +81,8 @@ MENU
       1)
         echo "You chose option 1, Backup from Documents -> Red Toshiba & Blue Toshiba."
         source_path_Documents_valid=$(check_source "$source_path_Documents")
-        dest_path_red_valid=$(check_dest "$dest_red")
-        dest_path_blue_valid=$(check_dest "$dest_blue")
+        dest_path_red_valid=$(check_destination "$dest_red")
+        dest_path_blue_valid=$(check_destination "$dest_blue")
 
         if [[ "$source_path_Documents_valid" == true && "$dest_path_red_valid" == true ]]; then
             # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
@@ -105,8 +105,8 @@ MENU
       2) 
         echo "You chose option 2, Backup from PHOTOS -> Red Toshiba & Blue Toshiba."
         source_path_PHOTOS_valid=$(check_source "$source_path_PHOTOS")
-        dest_path_red_valid=$(check_dest "$dest_red")
-        dest_path_blue_valid=$(check_dest "$dest_blue")
+        dest_path_red_valid=$(check_destination "$dest_red")
+        dest_path_blue_valid=$(check_destination "$dest_blue")
 
         if [[ "$source_path_PHOTOS_valid" == true && "$dest_path_red_valid" == true ]]; then
             # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
@@ -129,9 +129,9 @@ MENU
       3)
         echo "You chose option 3, Backup from directory on Kingston USB -> Red Toshiba."
         source_path_black_usb_valid=$(check_source "$source_path_black_usb")
-        dest_path_red_valid=$(check_dest "$dest_red")
+        dest_path_red_valid=$(check_destination "$dest_red")
 
-        if [[ "$source_path_black_usb_valid" && "$dest_path_red_valid" == true ]]; then
+        if [[ "$source_path_black_usb_valid" == true && "$dest_path_red_valid" == true ]]; then
             echo "Backup in progress..."
             echo "..."
             rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
@@ -143,7 +143,7 @@ MENU
       4) 
         echo "You chose option 4, Backup from directory on Kingston USB -> Blue Toshiba"
         source_path_black_usb_valid=$(check_source "$source_path_black_usb")
-        dest_path_blue_valid=$(check_dest "$$dest_blue")
+        dest_path_blue_valid=$(check_destination "$dest_blue")
 
         if [[ "$source_path_black_usb_valid" == true && "$dest_path_blue_valid" == true ]]; then
             echo "Backup in progress..."
