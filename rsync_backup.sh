@@ -24,31 +24,27 @@
 # Check for valid directory paths for source & destination.
 # -e - tests if a path exists without testing what type of file it is.
 check_if_directory() {
-    path_given=$1
-    # echo "path_given is:" "$1"
-    # The : colon here is returned after the function call. 
-    # Could: For troubleshooting, redirect line to standard error so standard input doesn't get return values.
-    # 
+    path_passed_in=$1
 
-    if [ ! -d "$path_given" ]; then
-        echo "This directory" "$path_given" "does NOT exist."
+    if [ ! -d "$path_passed_in" ]; then
+        echo "This directory does NOT exist:" "$path_passed_in"
         exit 1
     fi
 }
 
 while true
 do
-    clear
+clear
 
-    cat <<MENU
-    BACKUP Contents from a Directory on Laptop to a Storage Device
-    --------------------------------------------------------------
-    1. Backup from Documents -> Red Toshiba & Blue Toshiba
-    2. Backup from PHOTOS -> Red Toshiba & Blue Toshiba
-    3. Backup from directory on Black Kingston USB -> Red Toshiba
-    4. Backup from directory on Black Kingston USB -> Blue Toshiba
-    0. Quit
-    --------------------------------------------------------------
+cat <<MENU
+BACKUP Contents from a Directory on Laptop to a Storage Device
+--------------------------------------------------------------
+1. Backup from Documents -> Red Toshiba & Blue Toshiba
+2. Backup from PHOTOS -> Red Toshiba & Blue Toshiba
+3. Backup from directory on Black Kingston USB -> Red Toshiba
+4. Backup from directory on Black Kingston USB -> Blue Toshiba
+0. Quit
+--------------------------------------------------------------
 MENU
 
     # Custom user prompt. 
@@ -57,19 +53,20 @@ MENU
     # -r - interpret backslash as part of the line, NOT as escape char.
     # -p - execute read using prompt
     read -r -p "Type an option number. Or type 0 or Q to exit: " option
+    echo
 
     # Note: NO trailing \ on source directories - so ONLY copies directory
     # contents to destination. Prevents copying a repeated directory.
     source_path_Documents="/Users/kimlew/Documents"
     source_path_PHOTOS="/Users/kimlew/PHOTOS"
-    source_path_black_usb="/Volumes/Kingston16"
+    source_path_black_usb="/Volumes/Kingston16/test_King_to_ToshibaRD" #"/Volumes/Kingston16" 
     
     dest_red="/Volumes/ToshibaRD/"
     dest_blue="/Volumes/ToshibaBL/"
 
     case $option in
       1)
-        echo "You chose option 1, Backup from Documents -> Red Toshiba & Blue Toshiba."
+        echo "You chose: 1. Backup from Documents -> Red Toshiba & Blue Toshiba"
         source_path_Documents_valid=$(check_source "$source_path_Documents")
         dest_path_red_valid=$(check_destination "$dest_red")
         dest_path_blue_valid=$(check_destination "$dest_blue")
@@ -93,7 +90,7 @@ MENU
         break
         ;;
       2) 
-        echo "You chose option 2, Backup from PHOTOS -> Red Toshiba & Blue Toshiba."
+        echo "You chose: 2. Backup from PHOTOS -> Red Toshiba & Blue Toshiba"
         source_path_PHOTOS_valid=$(check_source "$source_path_PHOTOS")
         dest_path_red_valid=$(check_destination "$dest_red")
         dest_path_blue_valid=$(check_destination "$dest_blue")
@@ -117,7 +114,7 @@ MENU
         break
         ;;
       3)
-        echo "You chose option 3, Backup from directory on Kingston USB -> Red Toshiba."
+        echo "You chose: 3. Backup from directory on Kingston USB -> Red Toshiba"
         # If the function call is successful, it continues with next line.
         # If the function call is UNsuccessful, the function already gave user
         # an invalid directory message & quit the process, so you have to choose
@@ -126,15 +123,25 @@ MENU
         echo "Destination is: " "$dest_red"
         check_if_directory "$source_path_black_usb"
         check_if_directory "$dest_red"
+        number_of_files_in_src=$(find "${source_path_black_usb%/}" -type f | wc -l)
 
+        if [ "${number_of_files_in_src}" -eq 0 ]; then
+          echo "There are no files at this source path" "$source_path_black_usb"
+          exit 1
+        fi
+        
+        echo
         echo "BACKUP in progress..."
-        rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
+        echo
+        # file_counter="$((file_counter+1))"
+        rsync -avi --progress --stats --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
         "$source_path_black_usb" "$dest_red" \
-        && echo "DONE backup from Black Kingston USB to Red Toshiba."
+        && echo \
+        && echo "BACKUP from Black Kingston USB to Red Toshiba is DONE!"
         break
         ;;
       4) 
-        echo "You chose option 4, Backup from directory on Kingston USB -> Blue Toshiba"
+        echo "You chose: 4. Backup from directory on Kingston USB -> Blue Toshiba"
         source_path_black_usb_valid=$(check_source "$source_path_black_usb")
         dest_path_blue_valid=$(check_destination "$dest_blue")
 
@@ -142,13 +149,13 @@ MENU
             echo "Backup in progress..."
             echo "..."
             rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_black_usb_valid" "$dest_path_blue_valid" \
-            && echo "Done backup from Black Kingston USB to Blue Toshiba."
+            "$source_path_black_usb_valid" "$dest_path_blue_valid"
+          echo "Done backup from Black Kingston USB to Blue Toshiba."
         fi
         break
         ;;
       0 | [Qq])
-        echo "You chose option 0, to Quit."
+        echo "You chose: 0. Quit"
         break
         ;;
       *)
@@ -157,5 +164,5 @@ MENU
         ;;
   esac
 done
-echo
+
 exit 0
