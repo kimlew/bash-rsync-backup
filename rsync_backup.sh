@@ -59,7 +59,8 @@ MENU
     # contents to destination. Prevents copying a repeated directory.
     source_path_Documents="/Users/kimlew/Documents"
     source_path_PHOTOS="/Users/kimlew/PHOTOS"
-    source_path_black_usb="/Volumes/Kingston16/test_King_to_ToshibaRD" #"/Volumes/Kingston16" 
+    source_path_black_usb="/Volumes/Kingston16" 
+    # "/Volumes/Kingston16/test_King_to_ToshibaRD"
     
     dest_red="/Volumes/ToshibaRD/"
     dest_blue="/Volumes/ToshibaBL/"
@@ -134,7 +135,7 @@ MENU
         echo "BACKUP in progress..."
         echo
         # file_counter="$((file_counter+1))"
-        rsync -avi --progress --stats --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
+        rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
         "$source_path_black_usb" "$dest_red" \
         && echo \
         && echo "BACKUP DONE of Black Kingston USB -> Red Toshiba."
