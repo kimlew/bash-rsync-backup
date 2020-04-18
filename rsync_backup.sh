@@ -38,13 +38,13 @@ clear
 
 cat <<MENU
 BACKUP Contents from a Directory on Laptop to a Storage Device
---------------------------------------------------------------
-1. Backup from Documents -> Red Toshiba & Blue Toshiba
-2. Backup from PHOTOS -> Red Toshiba & Blue Toshiba
-3. Backup from directory on Black Kingston USB -> Red Toshiba
-4. Backup from directory on Black Kingston USB -> Blue Toshiba
+-----------------------------------------------------------------
+1. Backup laptop's Documents folder -> Red Toshiba & Blue Toshiba
+2. Backup laptop's PHOTOS folder -> Red Toshiba & Blue Toshiba
+3. Backup Black Kingston USB -> Red Toshiba
+4. Backup Black Kingston USB -> Blue Toshiba
 0. Quit
---------------------------------------------------------------
+-----------------------------------------------------------------
 MENU
 
     # Custom user prompt. 
@@ -66,7 +66,7 @@ MENU
 
     case $option in
       1)
-        echo "You chose: 1. Backup from Documents -> Red Toshiba & Blue Toshiba"
+        echo "You chose: 1. Backup laptop's Documents folder -> Red Toshiba & Blue Toshiba"
         source_path_Documents_valid=$(check_source "$source_path_Documents")
         dest_path_red_valid=$(check_destination "$dest_red")
         dest_path_blue_valid=$(check_destination "$dest_blue")
@@ -90,7 +90,7 @@ MENU
         break
         ;;
       2) 
-        echo "You chose: 2. Backup from PHOTOS -> Red Toshiba & Blue Toshiba"
+        echo "You chose: 2. Backup laptop's PHOTOS folder -> Red Toshiba & Blue Toshiba"
         source_path_PHOTOS_valid=$(check_source "$source_path_PHOTOS")
         dest_path_red_valid=$(check_destination "$dest_red")
         dest_path_blue_valid=$(check_destination "$dest_blue")
@@ -114,7 +114,7 @@ MENU
         break
         ;;
       3)
-        echo "You chose: 3. Backup from directory on Kingston USB -> Red Toshiba"
+        echo "You chose: 3. Backup Black Kingston USB -> Red Toshiba"
         # If the function call is successful, it continues with next line.
         # If the function call is UNsuccessful, the function already gave user
         # an invalid directory message & quit the process, so you have to choose
@@ -137,11 +137,11 @@ MENU
         rsync -avi --progress --stats --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
         "$source_path_black_usb" "$dest_red" \
         && echo \
-        && echo "BACKUP from Black Kingston USB to Red Toshiba is DONE!"
+        && echo "BACKUP DONE of Black Kingston USB -> Red Toshiba."
         break
         ;;
       4) 
-        echo "You chose: 4. Backup from directory on Kingston USB -> Blue Toshiba"
+        echo "You chose: 4. Backup Black Kingston USB -> Blue Toshiba"
         source_path_black_usb_valid=$(check_source "$source_path_black_usb")
         dest_path_blue_valid=$(check_destination "$dest_blue")
 
