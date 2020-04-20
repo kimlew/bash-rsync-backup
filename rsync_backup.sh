@@ -59,11 +59,14 @@ MENU
     # contents to destination. Prevents copying a repeated directory.
     source_path_Documents="/Users/kimlew/Documents"
     source_path_PHOTOS="/Users/kimlew/PHOTOS"
-    source_path_black_usb="/Volumes/Kingston16" 
+    source_path_black_usb="/Volumes/Kingston16/test_King_to_ToshibaBL"
+    #"/Volumes/Kingston16" 
     # "/Volumes/Kingston16/test_King_to_ToshibaRD"
     
     dest_red="/Volumes/ToshibaRD/"
     dest_blue="/Volumes/ToshibaBL/"
+
+    time_start=$(date +%s)
 
     case $option in
       1)
@@ -121,38 +124,69 @@ MENU
         # an invalid directory message & quit the process, so you have to choose
         # a menu item again.
         echo "Source is: " "$source_path_black_usb"
-        echo "Destination is: " "$dest_red"
+        echo "Destination is :" "$dest_red"
+        echo
+
         check_if_directory "$source_path_black_usb"
         check_if_directory "$dest_red"
+
         number_of_files_in_src=$(find "${source_path_black_usb%/}" -type f | wc -l)
+        echo "Number of files in source path: " "$number_of_files_in_src"
+        number_of_files_dirs_etc_in_src=$(find "${source_path_black_usb%/}" | wc -l)
+        echo "Number of files, dirs, symlinks, etc. in source path: " "$number_of_files_dirs_etc_in_src"
+        echo
 
         if [ "${number_of_files_in_src}" -eq 0 ]; then
           echo "There are no files at this source path" "$source_path_black_usb"
           exit 1
         fi
         
-        echo
         echo "BACKUP in progress..."
         echo
-        # file_counter="$((file_counter+1))"
+        
         rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
         "$source_path_black_usb" "$dest_red" \
         && echo \
         && echo "BACKUP DONE of Black Kingston USB -> Red Toshiba."
+        
+        time_end=$(date +%s)
+        time_diff=$((time_end - time_start))
+        echo "Processing files took:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)" 
+        echo
         break
         ;;
       4) 
         echo "You chose: 4. Backup Black Kingston USB -> Blue Toshiba"
-        source_path_black_usb_valid=$(check_source "$source_path_black_usb")
-        dest_path_blue_valid=$(check_destination "$dest_blue")
+        echo "Source is: " "$source_path_black_usb"
+        echo "Destination is: " "$dest_blue"
+        echo
 
-        if [[ "$source_path_black_usb_valid" == true && "$dest_path_blue_valid" == true ]]; then
-            echo "Backup in progress..."
-            echo "..."
-            rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_black_usb_valid" "$dest_path_blue_valid"
-          echo "Done backup from Black Kingston USB to Blue Toshiba."
+        check_if_directory "$source_path_black_usb"
+        check_if_directory "$dest_blue"
+
+        number_of_files_in_src=$(find "${source_path_black_usb%/}" -type f | wc -l)
+        echo "Number of files in source path: " "$number_of_files_in_src"
+        number_of_files_dirs_etc_in_src=$(find "${source_path_black_usb%/}" | wc -l)
+        echo "Number of files, dirs, symlinks, etc. in source path: " "$number_of_files_dirs_etc_in_src"
+        echo
+        
+        if [ "${number_of_files_dirs_etc_in_src}" -eq 0 ]; then
+          echo "There are no files at this source path" "$source_path_black_usb"
+          exit 1
         fi
+        
+        echo "BACKUP in progress..."
+        echo
+
+        rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
+        "$source_path_black_usb" "$dest_blue" \
+        && echo \
+        && echo "BACKUP DONE of Black Kingston USB -> Blue Toshiba."
+
+        time_end=$(date +%s)
+        time_diff=$((time_end - time_start))
+        echo "Processing files took:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)" 
+        echo
         break
         ;;
       0 | [Qq])
