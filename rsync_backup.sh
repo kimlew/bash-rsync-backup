@@ -32,6 +32,16 @@ check_if_directory() {
     fi
 }
 
+source_has_files() {
+  path_passed_in=$1
+  number_of_files_in_src=$(find "${path_passed_in%/}" -type f | wc -l)
+
+if [ "${number_of_files_in_src}" -eq 0 ]; then
+  echo "There are NO files at this source path" "$path_passed_in"
+  exit 1
+fi
+}
+
 while true
 do
 clear
@@ -59,8 +69,8 @@ MENU
     # contents to destination. Prevents copying a repeated directory.
     source_path_Documents="/Users/kimlew/Documents"
     source_path_PHOTOS="/Users/kimlew/PHOTOS"
-    source_path_black_usb="/Volumes/Kingston16/test_King_to_ToshibaBL"
-    #"/Volumes/Kingston16" 
+    source_path_black_usb="/Volumes/Kingston16"
+    # "/Volumes/Kingston16/test_King_to_ToshibaBL"
     # "/Volumes/Kingston16/test_King_to_ToshibaRD"
     
     dest_red="/Volumes/ToshibaRD/"
@@ -129,17 +139,13 @@ MENU
 
         check_if_directory "$source_path_black_usb"
         check_if_directory "$dest_red"
+        source_has_files "$source_path_black_usb"
 
         number_of_files_in_src=$(find "${source_path_black_usb%/}" -type f | wc -l)
         echo "Number of files in source path: " "$number_of_files_in_src"
         number_of_files_dirs_etc_in_src=$(find "${source_path_black_usb%/}" | wc -l)
         echo "Number of files, dirs, symlinks, etc. in source path: " "$number_of_files_dirs_etc_in_src"
         echo
-
-        if [ "${number_of_files_in_src}" -eq 0 ]; then
-          echo "There are no files at this source path" "$source_path_black_usb"
-          exit 1
-        fi
         
         echo "BACKUP in progress..."
         echo
@@ -163,17 +169,13 @@ MENU
 
         check_if_directory "$source_path_black_usb"
         check_if_directory "$dest_blue"
+        source_has_files "$source_path_black_usb"
 
         number_of_files_in_src=$(find "${source_path_black_usb%/}" -type f | wc -l)
         echo "Number of files in source path: " "$number_of_files_in_src"
         number_of_files_dirs_etc_in_src=$(find "${source_path_black_usb%/}" | wc -l)
         echo "Number of files, dirs, symlinks, etc. in source path: " "$number_of_files_dirs_etc_in_src"
         echo
-        
-        if [ "${number_of_files_dirs_etc_in_src}" -eq 0 ]; then
-          echo "There are no files at this source path" "$source_path_black_usb"
-          exit 1
-        fi
         
         echo "BACKUP in progress..."
         echo
