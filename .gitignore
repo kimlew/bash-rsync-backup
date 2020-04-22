@@ -2,3 +2,4 @@
 .DS_Store
 rsync_file_output.txt
 dry-run*.txt
+backup_*.txt
