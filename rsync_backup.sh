@@ -68,6 +68,7 @@ MENU
     # Note: NO trailing \ on source directories - so ONLY copies directory
     # contents to destination. Prevents copying a repeated directory.
     source_path_Documents="/Users/kimlew/Documents"
+    # "/Users/kimlew/Documents/test_Documents_to_ToshibaRD"
     source_path_PHOTOS="/Users/kimlew/PHOTOS"
     source_path_black_usb="/Volumes/Kingston16"
     # "/Volumes/Kingston16/test_King_to_ToshibaBL"
@@ -81,26 +82,67 @@ MENU
     case $option in
       1)
         echo "You chose: 1. Backup laptop's Documents folder -> Red Toshiba & Blue Toshiba"
-        source_path_Documents_valid=$(check_source "$source_path_Documents")
-        dest_path_red_valid=$(check_destination "$dest_red")
-        dest_path_blue_valid=$(check_destination "$dest_blue")
+        echo "Source is: " "$source_path_Documents"
+        echo "Destination is: " "$dest_red"
+        echo "Destination is: " "$dest_blue"
+        echo
 
-        if [[ "$source_path_Documents_valid" == true && "$dest_path_red_valid" == true ]]; then
-            # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
-            # -v is verbose vs. -q, --quiet - to suppress non-error messages.
-            echo "Backup in progress..."
-            echo "..."
-            rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_Documents" "$dest_red" \
-            && echo "Done Documents backup to Red Toshiba."
-        fi
-        if [[ "$source_path_Documents_valid" == true && "$dest_path_blue_valid" == true ]]; then
-            echo "Backup in progress..."
-            echo "..."
-            rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_Documents" "$dest_blue" \
-            && echo "Done Documents backup to Blue Toshiba."
-        fi
+        check_if_directory "$source_path_Documents"
+        check_if_directory "$dest_red"
+        check_if_directory "$dest_blue"
+        source_has_files "$source_path_Documents"
+
+        number_of_files_in_src=$(find "${source_path_Documents%/}" -type f 2> /dev/null | wc -l)
+        echo "Number of files in Documents: " "$number_of_files_in_src"
+        number_of_files_dirs_etc_in_src=$(find "${source_path_Documents%/}" 2> /dev/null | wc -l)
+        echo "Number of files, dirs, symlinks, etc. in Documents source path: " "$number_of_files_dirs_etc_in_src"
+        echo
+
+        number_of_files_in_dest_red=$(find "${dest_red%/}" -type f 2> /dev/null | wc -l)
+        echo "BEFORE BACKUP: Number of files in RED HD dest path: " "$number_of_files_in_dest_red"
+        number_of_files_dirs_etc_in_dest_red=$(find "${dest_red%/}" 2> /dev/null | wc -l)
+        echo "BEFORE BACKUP: Number of files, dirs, symlinks, etc. BEFORE BACKUP in RED HD dest path: " "$number_of_files_dirs_etc_in_dest_red"
+        echo
+
+        number_of_files_in_dest_blue=$(find "${dest_blue%/}" -type f 2> /dev/null | wc -l)
+        echo "BEFORE BACKUP: Number of files in BLUE HD dest path: " "$number_of_files_in_dest_blue"
+        number_of_files_dirs_etc_in_dest_blue=$(find "${dest_blue%/}" 2> /dev/null | wc -l)
+        echo "BEFORE BACKUP: Number of files, dirs, symlinks, etc., in BLUE HD dest path: " "$number_of_files_dirs_etc_in_dest_blue"
+        echo
+        
+        echo "BACKUP in progress..."
+        echo
+        
+        # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
+        # -v is verbose vs. -q, --quiet - to suppress non-error messages.
+        # > dry-run_Documents_to_RedHD.txt \
+        rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
+        "$source_path_Documents" "$dest_red" \
+        | grep 'files transferred' > backup_Documents_to_RedHD.txt \
+        && echo "BACKUP DONE of Documents -> Red Toshiba."
+      
+        rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
+        "$source_path_Documents" "$dest_blue" \
+        | grep 'files transferred' > backup_Documents_to_BlueHD.txt \
+        && echo "BACKUP DONE of Documents -> Blue Toshiba."
+        echo
+
+        number_of_files_in_dest_red_after_backup=$(find "${dest_red%/}" -type f 2> /dev/null | wc -l)
+        echo "AFTER BACKUP: Number of files in RED HD dest path: " "$number_of_files_in_dest_red_after_backup"
+        number_of_files_dirs_etc_in_dest_red_after_backup=$(find "${dest_red%/}" 2> /dev/null | wc -l)
+        echo "AFTER BACKUP: Number of files, dirs, symlinks, etc. in RED HD dest path: " "$number_of_files_dirs_etc_in_dest_red_after_backup"
+        echo
+
+        number_of_files_in_dest_blue_after_backup=$(find "${dest_blue%/}" -type f 2> /dev/null | wc -l)
+        echo "AFTER BACKUP: Number of files in BLUE HD dest path: " "$number_of_files_in_dest_blue_after_backup"
+        number_of_files_dirs_etc_in_dest_blue_after_backup=$(find "${dest_blue%/}" 2> /dev/null | wc -l)
+        echo "AFTER BACKUP: Number of files, dirs, symlinks, etc. in BLUE HD dest path: " "$number_of_files_dirs_etc_in_dest_blue_after_backup"
+        echo
+        
+        time_end=$(date +%s)
+        time_diff=$((time_end - time_start))
+        echo "Processing files took:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)" 
+        echo
         break
         ;;
       2) 
