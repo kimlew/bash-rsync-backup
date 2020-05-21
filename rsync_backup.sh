@@ -33,25 +33,10 @@ check_if_directory() {
   fi
 }
 
-count_files() {
-  path_passed_in=$1
-  find "${path_passed_in%/}" -type f 2> /dev/null | wc -l
-
-  if [ ! -d "$path_passed_in" ]; then
-    echo "There are NO files at this path" "$path_passed_in"
-    exit 1
-  fi
-  # 1. Might not be a directory OR 2. Might be a directory with NO files in it.
-}
-
 count_files_dirs_etc() {
+  # Counts files, directories, symlinks, etc. in path passed in.
   path_passed_in=$1
   find "${path_passed_in%/}" 2> /dev/null | wc -l
-
-  if [ ! -d "$path_passed_in" ]; then
-    echo "There are NO files, directories, symlinks, etc. at this path" "$path_passed_in"
-    exit 1
-  fi
 }
 
 print_start_totals() {
@@ -230,11 +215,7 @@ MENU
         check_if_directory "$source_path_black_usb"
         check_if_directory "$dest_red"
 
-        count_files "$source_path_black_usb"
-
-        number_of_files_in_src=$(find "${source_path_black_usb%/}" -type f | wc -l)
-        echo "Number of files in source path: " "$number_of_files_in_src"
-        number_of_files_dirs_etc_in_src=$(find "${source_path_black_usb%/}" | wc -l)
+        number_of_files_dirs_etc_in_src=$(count_files_dirs_etc "$source_path_black_usb")
         echo "Number of files, dirs, symlinks, etc. in source path: " "$number_of_files_dirs_etc_in_src"
         echo
         
@@ -261,11 +242,7 @@ MENU
         check_if_directory "$source_path_black_usb"
         check_if_directory "$dest_blue"
 
-        count_files "$source_path_black_usb"
-
-        number_of_files_in_src=$(find "${source_path_black_usb%/}" -type f | wc -l)
-        echo "Number of files in source path: " "$number_of_files_in_src"
-        number_of_files_dirs_etc_in_src=$(find "${source_path_black_usb%/}" | wc -l)
+        number_of_files_dirs_etc_in_src=$(count_files_dirs_etc "$source_path_black_usb")
         echo "Number of files, dirs, symlinks, etc. in source path: " "$number_of_files_dirs_etc_in_src"
         echo
         
