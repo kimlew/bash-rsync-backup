@@ -152,7 +152,7 @@ MENU
     read -r -p "Type an option number. Or type 0 or Q to exit: " option
     echo
 
-    # Note: NO trailing \ on source directories - so ONLY copies directory
+    # Note: NO trailing / on source directories - so ONLY copies directory
     # contents to destination. Prevents copying a repeated directory.
     source_path_Documents="/Users/kimlew/Documents"
     # "/Users/kimlew/Documents/test_Documents_to_ToshibaRD"
