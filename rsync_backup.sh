@@ -41,6 +41,7 @@ count_files() {
     echo "There are NO files at this path" "$path_passed_in"
     exit 1
   fi
+  # 1. Might not be a directory OR 2. Might be a directory with NO files in it.
 }
 
 count_files_dirs_etc() {
@@ -53,6 +54,81 @@ count_files_dirs_etc() {
   fi
 }
 
+print_start_totals() {
+}
+
+do_backup() {
+  # counts the files you expect to back up at the source
+  # counts the files that are already below the target
+  # invokes rsync to do the copying
+  # counts the files that got copied
+  # prints the messages
+
+  # MIGHT NEED to adjust: Arguments passed in with call of do_backup function.
+  # Passes for Documents case, Case 1:
+  # source_path_Documents="/Users/kimlew/Documents"
+  # dest_red="/Volumes/ToshibaRD/"
+  # dest_blue="/Volumes/ToshibaBL/"
+
+  local source_path=$1
+  local source_name=$2
+  
+  local target_path1=$3
+  local target_name1=$4
+
+  local target_path2=$5
+  local target_name2=$6
+  
+  # All the counting, rsyncing, echoing messages.
+  number_of_files_dirs_etc_in_src=$(count_files_dirs_etc "$source_path_Documents")
+  echo "# of files, dirs, symlinks, etc. in Documents: " "$number_of_files_dirs_etc_in_src"
+  echo
+
+  echo "BEFORE BACKUP: "
+  number_of_files_dirs_etc_in_dest_red=$(count_files_dirs_etc "$dest_red")
+  echo "# of files, dirs, symlinks, etc. in RED HD dest path: " "$number_of_files_dirs_etc_in_dest_red"
+  number_of_files_dirs_etc_in_dest_blue=$(count_files_dirs_etc "$dest_blue")
+  echo "# of files, dirs, symlinks, etc., in BLUE HD dest path: " "$number_of_files_dirs_etc_in_dest_blue"
+  echo
+  
+  echo "BACKUP in progress..."
+  echo
+
+  # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
+  # -v is verbose vs. -q, --quiet - to suppress non-error messages.
+  # > dry-run_Documents_to_RedHD.txt \
+  rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
+  "$source_path_Documents" "$dest_red" \
+  > backup_Documents_to_RedHD.txt \
+  && echo "BACKUP DONE of Documents -> Red Toshiba."
+
+  rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
+  "$source_path_Documents" "$dest_blue" \
+  > backup_Documents_to_BlueHD.txt \
+  && echo "BACKUP DONE of Documents -> Blue Toshiba."
+  echo
+}
+
+# print_totals function
+print_end_totals() {
+  echo "AFTER BACKUP: "
+  number_of_files_dirs_etc_in_dest_red_after_backup=$(find "${dest_red%/}" 2> /dev/null | wc -l)
+  echo "# of files, dirs, symlinks, etc. in RED HD dest path: " "$number_of_files_dirs_etc_in_dest_red_after_backup"
+  number_of_files_dirs_etc_in_dest_blue_after_backup=$(find "${dest_blue%/}" 2> /dev/null | wc -l)
+  echo "# of files, dirs, symlinks, etc. in BLUE HD dest path: " "$number_of_files_dirs_etc_in_dest_blue_after_backup"
+  echo
+
+  transferred_files_dirs_to_red=$((number_of_files_dirs_etc_in_dest_red_after_backup - number_of_files_dirs_etc_in_dest_red))
+  transferred_files_dirs_to_blue_=$((number_of_files_dirs_etc_in_dest_blue_after_backup - number_of_files_dirs_etc_in_dest_blue))
+  echo "TOTAL files transferred to RED HD: " "$transferred_files_dirs_to_red"
+  echo "TOTAL files transferred to BLUE HD: " "$transferred_files_dirs_to_blue_"
+  echo
+
+  time_end=$(date +%s)
+  time_diff=$((time_end - time_start))
+  echo "Processing Time:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)"
+}
+
 while true
 do
 clear
@@ -60,10 +136,10 @@ clear
 cat <<MENU
 BACKUP the Contents from a Directory on your Laptop to a Storage Device
 -----------------------------------------------------------------------
-1. Backup laptop's Documents folder -> Red Toshiba & Blue Toshiba
-2. Backup laptop's PHOTOS folder -> Red Toshiba & Blue Toshiba
-3. Backup Black Kingston USB -> Red Toshiba
-4. Backup Black Kingston USB -> Blue Toshiba
+1. Backup laptop's Documents folder -> Red Toshiba & Blue Toshiba Hard Drives
+2. Backup laptop's PHOTOS folder -> Red Toshiba & Blue Toshiba Hard Drives
+3. Backup Black Kingston USB -> Red Toshiba Hard Drive
+4. Backup Black Kingston USB -> Blue Toshiba Hard Drive
 0. Quit
 -----------------------------------------------------------------------
 MENU
@@ -102,69 +178,18 @@ MENU
         check_if_directory "$dest_red"
         check_if_directory "$dest_blue"
 
-        number_of_files_in_src=$(count_files "$source_path_Documents")
-        echo "Number of files in Documents: " "$number_of_files_in_src"
-        number_of_files_dirs_etc_in_src=$(count_files_dirs_etc "$source_path_Documents")
-        echo "Number of files, dirs, symlinks, etc. in Documents: " "$number_of_files_dirs_etc_in_src"
-        echo
+        # print_start_totals "$source_path_Documents"
 
-        echo "BEFORE BACKUP: "
-        number_of_files_in_dest_red=$(count_files "$dest_red")
-        echo "Number of files in RED HD dest path: " "$number_of_files_in_dest_red"
-        number_of_files_dirs_etc_in_dest_red=$(count_files_dirs_etc "$dest_red")
-        echo "Number of files, dirs, symlinks, etc. in RED HD dest path: " "$number_of_files_dirs_etc_in_dest_red"
-        echo
+        # NEW: Pass 3 arguments with call of function, do_backup, e.g.,
+        # do_backup '/Users/kimlew/Documents' 'Documents' '/Volumes/ToshibaRD' 'Red Toshiba'
+        do_backup "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
 
-        number_of_files_in_dest_blue=$(count_files "$dest_blue")
-        echo "Number of files in BLUE HD dest path: " "$number_of_files_in_dest_blue"
-        number_of_files_dirs_etc_in_dest_blue=$(count_files_dirs_etc "$dest_blue")
-        echo "Number of files, dirs, symlinks, etc., in BLUE HD dest path: " "$number_of_files_dirs_etc_in_dest_blue"
-        echo
-        
-        echo "BACKUP in progress..."
-        echo
-        
-        # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
-        # -v is verbose vs. -q, --quiet - to suppress non-error messages.
-        # > dry-run_Documents_to_RedHD.txt \
-        rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
-        "$source_path_Documents" "$dest_red" \
-        > backup_Documents_to_RedHD.txt \
-        && echo "BACKUP DONE of Documents -> Red Toshiba."
-      
-        rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
-        "$source_path_Documents" "$dest_blue" \
-        > backup_Documents_to_BlueHD.txt \
-        && echo "BACKUP DONE of Documents -> Blue Toshiba."
-        echo
+        #OR:
+        # do_backup "$source_path_Documents" "nicename1" "$dest_red" "$nicename1"
+        # do_backup "$source_path_Documents" "nicename1" "$dest_blue" "$nicename2"
 
-        echo "AFTER BACKUP: "
-        number_of_files_in_dest_red_after_backup=$(find "${dest_red%/}" -type f 2> /dev/null | wc -l)
-        echo "Number of files in RED HD dest path: " "$number_of_files_in_dest_red_after_backup"
-        number_of_files_dirs_etc_in_dest_red_after_backup=$(find "${dest_red%/}" 2> /dev/null | wc -l)
-        echo "Number of files, dirs, symlinks, etc. in RED HD dest path: " "$number_of_files_dirs_etc_in_dest_red_after_backup"
-        echo
+        # print_end_totals "$source_path_Documents" "nicename1" "$dest_red" "nicename1" "$dest_blue" "nicename1"
 
-        number_of_files_in_dest_blue_after_backup=$(find "${dest_blue%/}" -type f 2> /dev/null | wc -l)
-        echo "Number of files in BLUE HD dest path: " "$number_of_files_in_dest_blue_after_backup"
-        number_of_files_dirs_etc_in_dest_blue_after_backup=$(find "${dest_blue%/}" 2> /dev/null | wc -l)
-        echo "Number of files, dirs, symlinks, etc. in BLUE HD dest path: " "$number_of_files_dirs_etc_in_dest_blue_after_backup"
-        echo
-        
-        transferred_files_to_red=$((number_of_files_in_dest_red_after_backup-number_of_files_in_dest_red))
-        transferred_files_to_blue=$((number_of_files_in_dest_blue_after_backup-number_of_files_in_dest_blue))
-        echo "TOTAL files transferred to RED: " "$transferred_files_to_red"
-        echo "TOTAL files transferred to BLUE: " "$transferred_files_to_blue"
-
-        transferred_files_to_red_way2=$((number_of_files_dirs_etc_in_dest_red_after_backup - number_of_files_dirs_etc_in_dest_red))
-        transferred_files_to_blue_way2=$((number_of_files_dirs_etc_in_dest_blue_after_backup - number_of_files_dirs_etc_in_dest_blue))
-        echo "TOTAL files transferred to RED way2: " "$transferred_files_to_red_way2"
-        echo "TOTAL files transferred to BLUE way2: " "$transferred_files_to_blue_way2"
-        echo
-
-        time_end=$(date +%s)
-        time_diff=$((time_end - time_start))
-        echo "Processing Time:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)" 
         echo
         break
         ;;
