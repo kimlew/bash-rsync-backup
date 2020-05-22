@@ -39,47 +39,14 @@ count_files_dirs_etc() {
   find "${path_passed_in%/}" 2> /dev/null | wc -l
 }
 
-print_start_totals_2_dest() {
-  local source_path=$1
-  local source_name=$2
-  
-  local dest_path_red=$3
-  local dest_name_red=$4
+print_number_of_files() {
+  local source_or_dest=$1
+  local number_of_files=$2
 
-  local dest_path_blue=$5
-  local dest_name_blue=$6
-  
-  # All the counting, rsyncing, echoing messages.
-  number_of_files_dirs_etc_in_src=$(count_files_dirs_etc "$source_path")
-  echo "# of files, dirs, symlinks, etc. in $source_name: " "$number_of_files_dirs_etc_in_src"
-  echo
-
-  echo "BEFORE BACKUP: "
-  number_of_files_dirs_etc_in_dest_red=$(count_files_dirs_etc "$dest_path_red")
-  echo "# of files, dirs, symlinks, etc. in $dest_name_red: " "$number_of_files_dirs_etc_in_dest_red"
-  number_of_files_dirs_etc_in_dest_blue=$(count_files_dirs_etc "$dest_path_blue")
-  echo "# of files, dirs, symlinks, etc., in $dest_name_blue: " "$number_of_files_dirs_etc_in_dest_blue"
-  echo
-}
-print_start_totals_1_dest() {
-  local source_path=$1
-  local source_name=$2
-  
-  local dest_path=$3
-  local dest_name=$4
-  
-  # All the counting, rsyncing, echoing messages.
-  number_of_files_dirs_etc_in_src=$(count_files_dirs_etc "$source_path")
-  echo "# of files, dirs, symlinks, etc. in $source_name: " "$number_of_files_dirs_etc_in_src"
-  echo
-
-  echo "BEFORE BACKUP: "
-  number_of_files_dirs_etc_in_dest=$(count_files_dirs_etc "$dest_path_red")
-  echo "# of files, dirs, symlinks, etc. in $dest_name: " "$number_of_files_dirs_etc_in_dest"
-echo
+  echo "# of files, dirs, symlinks, etc. in: " "$source_or_dest" "is: " "$number_of_files"
 }
 
-do_backup_2_dest() {
+do_backup_for_2_targets() {
   # For Case 1, Documents & Case2, PHOTOS.
   # Note: Passes for Documents case, Case 1:
   # source_path_Documents="/Users/kimlew/Documents"
@@ -96,7 +63,6 @@ do_backup_2_dest() {
   local dest_path_blue=$5
   local dest_name_blue=$6
   
-  # rsync & print end counts.
   echo "BACKUP in progress..."
   echo
 
@@ -114,14 +80,13 @@ do_backup_2_dest() {
   && echo "BACKUP DONE of $source_name -> $dest_name_blue."
   echo
 }
-do_backup_1_dest() {
+do_backup_for_1_target() {
   local source_path=$1
   local source_name=$2
   
   local dest_path=$3
   local dest_name=$4
   
-  # rsync & print end counts.
   echo "BACKUP in progress..."
   echo
 
@@ -161,8 +126,8 @@ MENU
 
     # Note: NO trailing / on source directories - so ONLY copies directory
     # contents to destination. Prevents copying a repeated directory.
-    source_path_Documents="/Users/kimlew/Documents"
-    # "/Users/kimlew/Documents/test_Documents_to_ToshibaRD"
+    # source_path_Documents="/Users/kimlew/Documents"
+    source_path_Documents="/Users/kimlew/Documents/computer_website_camera_info/Camera/Canon_Rebel_T3i_Esst_Train_2011"
     source_path_PHOTOS="/Users/kimlew/PHOTOS"
     source_path_black_usb="/Volumes/Kingston16"
     # "/Volumes/Kingston16/test_King_to_ToshibaBL"
@@ -175,7 +140,7 @@ MENU
 
     case $option in
       1)
-        echo "You chose: 1. Backup laptop's Documents folder -> Red Toshiba & Blue Toshiba"
+        echo "YOU CHOSE: 1. Backup laptop's Documents folder -> Red Toshiba & Blue Toshiba"
         echo "Source is: " "$source_path_Documents"
         echo "Destination is: " "$dest_red"
         echo "Destination is: " "$dest_blue"
@@ -186,35 +151,29 @@ MENU
         check_if_directory "$dest_blue"
 
         echo "BEFORE BACKUP: "
-        number_of_files_dirs_etc_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
-        echo "# of files, dirs, symlinks, etc. in $dest_red: " "$number_of_files_dirs_etc_in_dest_red_before_backup"
-        
-        number_of_files_dirs_etc_in_dest_blue_before_backup=$(count_files_dirs_etc "$dest_blue")
-        echo "# of files, dirs, symlinks, etc. in $dest_blue: " "$number_of_files_dirs_etc_in_dest_blue_before_backup"
+        num_of_files_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
+        print_number_of_files "$dest_red" "$num_of_files_in_dest_red_before_backup"
+
+        num_of_files_in_dest_blue_before_backup=$(count_files_dirs_etc "$dest_blue")
+        print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_before_backup" 
         echo
         
-        print_start_totals_2_dest "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
-
         # Pass 6 arguments with call of function, do_backup().
         # Could also do this way:
         # do_backup "$source_path_Documents" "nicename1" "$dest_red" "$nicename1"
         # do_backup "$source_path_Documents" "nicename1" "$dest_blue" "$nicename2"
-        do_backup_2_dest "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
+        do_backup_for_2_targets "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
 
-        # Note: Would print totals 2x if I did this: print_end_totals "$source_path_Documents" "nicename1" "$dest_red" "nicename1" "$dest_blue" "nicename1"
-        
         echo "AFTER BACKUP: "
-        number_of_files_dirs_etc_in_dest_red_after_backup=$(count_files_dirs_etc "$dest_red")
-        echo "# of files, dirs, symlinks, etc. in $dest_red: " "$number_of_files_dirs_etc_in_dest_red_after_backup"
-        number_of_files_dirs_etc_in_dest_blue_after_backup=$(count_files_dirs_etc "$dest_blue")
-        echo "# of files, dirs, symlinks, etc. in $dest_red: " "$number_of_files_dirs_etc_in_dest_blue_after_backup"
-        echo
+        num_of_files_in_dest_red_after_backup=$(count_files_dirs_etc "$dest_red")
+        print_number_of_files "$dest_red" "$num_of_files_in_dest_red_after_backup"
+        num_of_files_in_dest_blue_after_backup=$(count_files_dirs_etc "$dest_blue")
+        print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_after_backup"
 
-        transferred_files_dirs_to_red=$((number_of_files_dirs_etc_in_dest_red_after_backup - number_of_files_dirs_etc_in_dest_red_before_backup))
-        transferred_files_dirs_to_blue_=$((number_of_files_dirs_etc_in_dest_blue_after_backup - number_of_files_dirs_etc_in_dest_blue_before_backup))
-        echo "TOTAL files transferred to $dest_red: " "$transferred_files_dirs_to_red"
-        echo "TOTAL files transferred to $dest_blue: " "$transferred_files_dirs_to_blue_"
-        echo
+        transferred_files_dirs_to_red=$((num_of_files_in_dest_red_after_backup - num_of_files_in_dest_red_before_backup))
+        transferred_files_dirs_to_blue_=$((num_of_files_in_dest_blue_after_backup - num_of_files_in_dest_blue_before_backup))
+        echo "Total files transferred to $dest_red: " "$transferred_files_dirs_to_red"
+        echo "Total files transferred to $dest_blue: " "$transferred_files_dirs_to_blue_"
 
         time_end=$(date +%s)
         time_diff=$((time_end - time_start))
@@ -223,7 +182,7 @@ MENU
         break
         ;;
       2) 
-        echo "You chose: 2. Backup laptop's PHOTOS folder -> Red Toshiba & Blue Toshiba"
+        echo "YOU CHOSE: 2. Backup laptop's PHOTOS folder -> Red Toshiba & Blue Toshiba"
         source_path_PHOTOS_valid=$(check_source "$source_path_PHOTOS")
         dest_path_red_valid=$(check_destination "$dest_red")
         dest_path_blue_valid=$(check_destination "$dest_blue")
@@ -247,7 +206,7 @@ MENU
         break
         ;;
       3)
-        echo "You chose: 3. Backup Black Kingston USB -> Red Toshiba"
+        echo "YOU CHOSE: 3. Backup Black Kingston USB -> Red Toshiba"
         # If the function call is successful, it continues with next line.
         # If the function call is UNsuccessful, the function already gave user
         # an invalid directory message & quit the process, so you have to choose
@@ -278,7 +237,7 @@ MENU
         break
         ;;
       4) 
-        echo "You chose: 4. Backup Black Kingston USB -> Blue Toshiba"
+        echo "YOU CHOSE: 4. Backup Black Kingston USB -> Blue Toshiba"
         echo "Source is: " "$source_path_black_usb"
         echo "Destination is: " "$dest_blue"
         echo
