@@ -114,6 +114,27 @@ do_backup_2_dest() {
   && echo "BACKUP DONE of $source_name -> $dest_name_blue."
   echo
 }
+do_backup_1_dest() {
+  local source_path=$1
+  local source_name=$2
+  
+  local dest_path=$3
+  local dest_name=$4
+  
+  # rsync & print end counts.
+  echo "BACKUP in progress..."
+  echo
+
+  # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
+  # -v is verbose vs. -q, --quiet - to suppress non-error messages.
+  # > dry-run_Documents_to_RedHD.txt \
+  rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
+  "$source_path" "$dest_path" \
+  > backup_USB_to_Hard_Drive.txt \
+  && echo "BACKUP DONE of $source_name -> $dest_name."
+  echo
+  # TODO: Change .txt to increase in number when script runs? How else 2 files?
+}
 
 while true
 do
