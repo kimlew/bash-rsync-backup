@@ -39,23 +39,7 @@ count_files_dirs_etc() {
   find "${path_passed_in%/}" 2> /dev/null | wc -l
 }
 
-print_start_totals() {
-}
-
-do_backup() {
-  # counts the files you expect to back up at the source
-  # counts the files that are already below the target
-  # invokes rsync to do the copying
-  # counts the files that got copied
-  # prints the messages
-
-  # MIGHT NEED to adjust: Arguments passed in with call of do_backup function.
-  # Passes for Documents case, Case 1:
-  # source_path_Documents="/Users/kimlew/Documents"
-  # dest_red="/Volumes/ToshibaRD/"
-  # dest_blue="/Volumes/ToshibaBL/"
-  # Called: do_backup "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
-
+print_start_totals_2_dest() {
   local source_path=$1
   local source_name=$2
   
@@ -72,11 +56,47 @@ do_backup() {
 
   echo "BEFORE BACKUP: "
   number_of_files_dirs_etc_in_dest_red=$(count_files_dirs_etc "$dest_path_red")
-  echo "# of files, dirs, symlinks, etc. in RED HD dest path: " "$number_of_files_dirs_etc_in_dest_red"
+  echo "# of files, dirs, symlinks, etc. in $dest_name_red: " "$number_of_files_dirs_etc_in_dest_red"
   number_of_files_dirs_etc_in_dest_blue=$(count_files_dirs_etc "$dest_path_blue")
-  echo "# of files, dirs, symlinks, etc., in BLUE HD dest path: " "$number_of_files_dirs_etc_in_dest_blue"
+  echo "# of files, dirs, symlinks, etc., in $dest_name_blue: " "$number_of_files_dirs_etc_in_dest_blue"
   echo
+}
+print_start_totals_1_dest() {
+  local source_path=$1
+  local source_name=$2
   
+  local dest_path=$3
+  local dest_name=$4
+  
+  # All the counting, rsyncing, echoing messages.
+  number_of_files_dirs_etc_in_src=$(count_files_dirs_etc "$source_path")
+  echo "# of files, dirs, symlinks, etc. in $source_name: " "$number_of_files_dirs_etc_in_src"
+  echo
+
+  echo "BEFORE BACKUP: "
+  number_of_files_dirs_etc_in_dest=$(count_files_dirs_etc "$dest_path_red")
+  echo "# of files, dirs, symlinks, etc. in $dest_name: " "$number_of_files_dirs_etc_in_dest"
+echo
+}
+
+do_backup_2_dest() {
+  # For Case 1, Documents & Case2, PHOTOS.
+  # Note: Passes for Documents case, Case 1:
+  # source_path_Documents="/Users/kimlew/Documents"
+  # dest_red="/Volumes/ToshibaRD/"
+  # dest_blue="/Volumes/ToshibaBL/"
+  # Called: do_backup "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
+
+  local source_path=$1
+  local source_name=$2
+  
+  local dest_path_red=$3
+  local dest_name_red=$4
+
+  local dest_path_blue=$5
+  local dest_name_blue=$6
+  
+  # rsync & print end counts.
   echo "BACKUP in progress..."
   echo
 
@@ -144,11 +164,11 @@ MENU
         check_if_directory "$dest_red"
         check_if_directory "$dest_blue"
 
-        # print_start_totals "$source_path_Documents"
+        print_start_totals_2_dest "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
 
         # NEW: Pass 3 arguments with call of function, do_backup, e.g.,
         # do_backup '/Users/kimlew/Documents' 'Documents' '/Volumes/ToshibaRD' 'Red Toshiba'
-        do_backup "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
+        do_backup_2_dest "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
 
         #OR:
         # do_backup "$source_path_Documents" "nicename1" "$dest_red" "$nicename1"
