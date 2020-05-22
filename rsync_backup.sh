@@ -185,28 +185,35 @@ MENU
         check_if_directory "$dest_red"
         check_if_directory "$dest_blue"
 
+        echo "BEFORE BACKUP: "
+        number_of_files_dirs_etc_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
+        echo "# of files, dirs, symlinks, etc. in $dest_red: " "$number_of_files_dirs_etc_in_dest_red_before_backup"
+        
+        number_of_files_dirs_etc_in_dest_blue_before_backup=$(count_files_dirs_etc "$dest_blue")
+        echo "# of files, dirs, symlinks, etc. in $dest_blue: " "$number_of_files_dirs_etc_in_dest_blue_before_backup"
+        echo
+        
         print_start_totals_2_dest "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
 
-        # NEW: Pass 3 arguments with call of function, do_backup, e.g.,
-        # do_backup '/Users/kimlew/Documents' 'Documents' '/Volumes/ToshibaRD' 'Red Toshiba'
-        do_backup_2_dest "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
-
-        #OR:
+        # Pass 6 arguments with call of function, do_backup().
+        # Could also do this way:
         # do_backup "$source_path_Documents" "nicename1" "$dest_red" "$nicename1"
         # do_backup "$source_path_Documents" "nicename1" "$dest_blue" "$nicename2"
+        do_backup_2_dest "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
 
         # Note: Would print totals 2x if I did this: print_end_totals "$source_path_Documents" "nicename1" "$dest_red" "nicename1" "$dest_blue" "nicename1"
+        
         echo "AFTER BACKUP: "
-        number_of_files_dirs_etc_in_dest_red_after_backup=$(find "${dest_red%/}" 2> /dev/null | wc -l)
-        echo "# of files, dirs, symlinks, etc. in RED HD dest path: " "$number_of_files_dirs_etc_in_dest_red_after_backup"
-        number_of_files_dirs_etc_in_dest_blue_after_backup=$(find "${dest_blue%/}" 2> /dev/null | wc -l)
-        echo "# of files, dirs, symlinks, etc. in BLUE HD dest path: " "$number_of_files_dirs_etc_in_dest_blue_after_backup"
+        number_of_files_dirs_etc_in_dest_red_after_backup=$(count_files_dirs_etc "$dest_red")
+        echo "# of files, dirs, symlinks, etc. in $dest_red: " "$number_of_files_dirs_etc_in_dest_red_after_backup"
+        number_of_files_dirs_etc_in_dest_blue_after_backup=$(count_files_dirs_etc "$dest_blue")
+        echo "# of files, dirs, symlinks, etc. in $dest_red: " "$number_of_files_dirs_etc_in_dest_blue_after_backup"
         echo
 
-        transferred_files_dirs_to_red=$((number_of_files_dirs_etc_in_dest_red_after_backup - number_of_files_dirs_etc_in_dest_red))
-        transferred_files_dirs_to_blue_=$((number_of_files_dirs_etc_in_dest_blue_after_backup - number_of_files_dirs_etc_in_dest_blue))
-        echo "TOTAL files transferred to RED HD: " "$transferred_files_dirs_to_red"
-        echo "TOTAL files transferred to BLUE HD: " "$transferred_files_dirs_to_blue_"
+        transferred_files_dirs_to_red=$((number_of_files_dirs_etc_in_dest_red_after_backup - number_of_files_dirs_etc_in_dest_red_before_backup))
+        transferred_files_dirs_to_blue_=$((number_of_files_dirs_etc_in_dest_blue_after_backup - number_of_files_dirs_etc_in_dest_blue_before_backup))
+        echo "TOTAL files transferred to $dest_red: " "$transferred_files_dirs_to_red"
+        echo "TOTAL files transferred to $dest_blue: " "$transferred_files_dirs_to_blue_"
         echo
 
         time_end=$(date +%s)
