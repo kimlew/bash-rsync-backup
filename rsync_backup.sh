@@ -125,9 +125,12 @@ MENU
     echo
 
     # Note: NO trailing / on source directories - so ONLY copies directory
-    # contents to destination. Prevents copying a repeated directory.
-    # source_path_Documents="/Users/kimlew/Documents"
-    source_path_Documents="/Users/kimlew/Documents/computer_website_camera_info/Camera/Canon_Rebel_T3i_Esst_Train_2011"
+    # contents to destination/target. Prevents copying a repeated directory.
+    # Specifically here, copies from last item in source path to target's root &
+    # creates the directory, if it doesn't already exist, e.g., creates Documents
+    # directory under /Volumes/ToshibaRD/, if there isn't one already .
+    source_path_Documents="/Users/kimlew/Documents"
+    # source_path_Documents="/Users/kimlew/Documents/computer_website_camera_info/Camera/Canon_Rebel_T3i_Esst_Train_2011"
     source_path_PHOTOS="/Users/kimlew/PHOTOS"
     source_path_black_usb="/Volumes/Kingston16"
     # "/Volumes/Kingston16/test_King_to_ToshibaBL"
@@ -171,9 +174,14 @@ MENU
         print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_after_backup"
 
         transferred_files_dirs_to_red=$((num_of_files_in_dest_red_after_backup - num_of_files_in_dest_red_before_backup))
-        transferred_files_dirs_to_blue_=$((num_of_files_in_dest_blue_after_backup - num_of_files_in_dest_blue_before_backup))
-        echo "Total files transferred to $dest_red: " "$transferred_files_dirs_to_red"
-        echo "Total files transferred to $dest_blue: " "$transferred_files_dirs_to_blue_"
+        transferred_files_dirs_to_blue=$((num_of_files_in_dest_blue_after_backup - num_of_files_in_dest_blue_before_backup))
+        updated_files_dirs_to_red=$(grep '^Number of files transferred' backup_Documents_to_RedHD.txt | sed -E 's/^.*transferred: //')
+        updated_files_dirs_to_blue=$(grep '^Number of files transferred' backup_Documents_to_BlueHD.txt | sed -E 's/^.*transferred: //')
+        
+        echo "New files transferred to $dest_red: " "$transferred_files_dirs_to_red"
+        echo "New files transferred to $dest_blue: " "$transferred_files_dirs_to_blue"
+        echo "Updated files to $dest_red: " "$updated_files_dirs_to_red"
+        echo "Updated files to $dest_blue: " "$updated_files_dirs_to_blue"
 
         time_end=$(date +%s)
         time_diff=$((time_end - time_start))
