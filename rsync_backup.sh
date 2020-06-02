@@ -100,6 +100,12 @@ do_backup_for_1_target() {
   echo
   # TODO: Change .txt to increase in number when script runs? How else 2 files?
 }
+calculate_processing_time() {
+  local time_end=$1
+  time_diff=$((time_end - time_start))
+  echo "Processing Time:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)"
+  echo
+}
 
 while true
 do
@@ -184,33 +190,48 @@ MENU
         echo "Updated files to $dest_blue: " "$updated_files_dirs_to_blue"
 
         time_end=$(date +%s)
-        time_diff=$((time_end - time_start))
-        echo "Processing Time:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)"
-        echo
+        calculate_processing_time "$time_end"
         break
         ;;
       2) 
         echo "YOU CHOSE: 2. Backup laptop's PHOTOS folder -> Red Toshiba & Blue Toshiba"
-        source_path_PHOTOS_valid=$(check_source "$source_path_PHOTOS")
-        dest_path_red_valid=$(check_destination "$dest_red")
-        dest_path_blue_valid=$(check_destination "$dest_blue")
+        echo "Source is: " "$source_path_PHOTOS"
+        echo "Destination is: " "$dest_red"
+        echo "Destination is: " "$dest_blue"
+        echo
 
-        if [[ "$source_path_PHOTOS_valid" == true && "$dest_path_red_valid" == true ]]; then
-            # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
-            # -v is verbose vs. -q, --quiet - to suppress non-error messages.
-            echo "Backup in progress..."
-            echo "..."
-            rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_PHOTOS" "$dest_red" \
-            && echo "Done PHOTOS backup to Red Toshiba."
-        fi
-        if [[ "$source_path_PHOTOS_valid" == true && "$dest_path_blue_valid" == true ]]; then
-            echo "Backup in progress..."
-            echo "..."
-            rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_PHOTOS" "$dest_blue" \
-            && echo "Done PHOTOS backup to Blue Toshiba."
-        fi
+        check_if_directory "$source_path_PHOTOS"
+        check_if_directory "$dest_red"
+        check_if_directory "$dest_blue"
+
+        echo "BEFORE BACKUP: "
+        num_of_files_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
+        print_number_of_files "$dest_red" "$num_of_files_in_dest_red_before_backup"
+
+        num_of_files_in_dest_blue_before_backup=$(count_files_dirs_etc "$dest_blue")
+        print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_before_backup" 
+        echo
+
+        do_backup_for_2_targets "$source_path_PHOTOS" "PHOTOS" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
+
+        echo "AFTER BACKUP: "
+        num_of_files_in_dest_red_after_backup=$(count_files_dirs_etc "$dest_red")
+        print_number_of_files "$dest_red" "$num_of_files_in_dest_red_after_backup"
+        num_of_files_in_dest_blue_after_backup=$(count_files_dirs_etc "$dest_blue")
+        print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_after_backup"
+
+        transferred_files_dirs_to_red=$((num_of_files_in_dest_red_after_backup - num_of_files_in_dest_red_before_backup))
+        transferred_files_dirs_to_blue=$((num_of_files_in_dest_blue_after_backup - num_of_files_in_dest_blue_before_backup))
+        updated_files_dirs_to_red=$(grep '^Number of files transferred' backup_PHOTOS_to_RedHD.txt | sed -E 's/^.*transferred: //')
+        updated_files_dirs_to_blue=$(grep '^Number of files transferred' backup_PHOTOS_to_BlueHD.txt | sed -E 's/^.*transferred: //')
+        
+        echo "New files transferred to $dest_red: " "$transferred_files_dirs_to_red"
+        echo "New files transferred to $dest_blue: " "$transferred_files_dirs_to_blue"
+        echo "Updated files to $dest_red: " "$updated_files_dirs_to_red"
+        echo "Updated files to $dest_blue: " "$updated_files_dirs_to_blue"
+
+        time_end=$(date +%s)
+        calculate_processing_time "$time_end"
         break
         ;;
       3)
@@ -239,9 +260,7 @@ MENU
         && echo "BACKUP DONE of Black Kingston USB -> Red Toshiba."
         
         time_end=$(date +%s)
-        time_diff=$((time_end - time_start))
-        echo "Processing files took:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)" 
-        echo
+        calculate_processing_time "$time_end"
         break
         ;;
       4) 
@@ -266,9 +285,7 @@ MENU
         && echo "BACKUP DONE of Black Kingston USB -> Blue Toshiba."
 
         time_end=$(date +%s)
-        time_diff=$((time_end - time_start))
-        echo "Processing files took:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)" 
-        echo
+        calculate_processing_time "$time_end"
         break
         ;;
       0 | [Qq])
