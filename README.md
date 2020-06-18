@@ -9,5 +9,6 @@ Bash script that uses rsync to backup from:
 
 Script:
 
-- includes user prompts - since including or excluding a trailing / is tricky, especially when entering the source & destination/target
+- includes menu of options
+- eliminates confusing/tricky part of when to include or exclude a trailing / especially when you enter the source & destination/target
 - prevents creation of unwanted duplicate sub-directories
