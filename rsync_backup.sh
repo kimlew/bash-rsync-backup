@@ -1,25 +1,25 @@
 #! /usr/bin/env bash
 #
-# Name: bash_rsync.sh
+# Name: rsync_backup.sh
 #
 # Brief: Bash script that uses rsync to backup files from a specific directory  
-# on computer to external hard drive, USB drive, etc. 
-# - Script includes user prompts, since including or excluding a trailing / 
-# is tricky, when entering the source & destination/target.
-# - Prevents: Creation of unwanted duplicated sub-directories.
+# on laptop or  USB drive to external hard drives. This script:
+# - includes user prompts, since including or excluding a trailing / is tricky,
+# when entering the source & destination/target.
+# - prevents creation of unwanted duplicated sub-directories.
 #
-# Author: Kim Lew
-
-# For SOURCE: 
-# State the specific sub-directory WITHOUT /.
-# For DESTINATION (target): 
-# Do NOT state specific sub-directory, BUT add a /.
+# For SOURCE: State the specific sub-directory WITHOUT /.
+# For DESTINATION (target): Do NOT state specific sub-directory, BUT add a /.
 
 # Note: rsync is smart enough to create the sub-directory, if it doesn't already
 # exist, & transfers contents. 
 # If sub-directory already exists, rsync just transfers contents.
 
-# Limitation: Only 2 USB ports on laptop.
+# Limitation: Only 2 USB ports on laptop, therefore:
+# To backup USB drive to Red HD: Connect USB drive, connect Red HD & run script with option 3.
+# To backup USB drive to Blue HD: Connect USB drive, connect Blue HD & run script with option 4.
+
+# Author: Kim Lew
 
 # Check for valid directory paths for source & destination.
 # -e - tests if a path exists without testing what type of file it is.
@@ -43,62 +43,75 @@ print_number_of_files() {
   local source_or_dest=$1
   local number_of_files=$2
 
-  echo "# of files, dirs, symlinks, etc. in: " "$source_or_dest" "is: " "$number_of_files"
+  echo "# of files, dirs, symlinks, etc. in ${source_or_dest} is: ${number_of_files}"
 }
 
 do_backup_for_2_targets() {
-  # For Case 1, Documents & Case2, PHOTOS.
-  # Note: Passes for Documents case, Case 1:
-  # source_path_Documents="/Users/kimlew/Documents"
-  # dest_red="/Volumes/ToshibaRD/"
-  # dest_blue="/Volumes/ToshibaBL/"
-  # Called: do_backup "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
-
+  # For Case 1, Documents -> Red & Blue HDs & Case2, PHOTOS -> Red & Blue HDs.
   local source_path=$1
   local source_name=$2
   
-  local dest_path_red=$3
-  local dest_name_red=$4
-
-  local dest_path_blue=$5
-  local dest_name_blue=$6
-  
-  echo "BACKUP in progress..."
+  echo "$backup_started"
   echo
 
   # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
   # -v is verbose vs. -q, --quiet - to suppress non-error messages.
   # > dry-run_Documents_to_RedHD.txt \
   rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
-  "$source_path" "$dest_path_red" \
-  > backup_Documents_to_RedHD.txt \
-  && echo "BACKUP DONE of $source_name -> $dest_name_red."
+  "${source_path}" "${dest_red}" \
+  > backup_"${source_name}"_to_"${red_drive_name}".txt \
+  && echo "${backup_in_progress}" "${source_name}" "->" "${red_drive_name}"
 
   rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
-  "$source_path" "$dest_path_blue" \
-  > backup_Documents_to_BlueHD.txt \
-  && echo "BACKUP DONE of $source_name -> $dest_name_blue."
+  "${source_path}" "${dest_blue}" \
+  > backup_"${source_name}"_to_"${blue_drive_name}".txt \
+  && echo "${backup_in_progress}" "${source_name}" "->" "${blue_drive_name}"
   echo
 }
 do_backup_for_1_target() {
+  # For Case 3, Black USB -> Red HD & Case 4, Black USB -> Blue HD. Passes in:
+  # source_path_black_usb="/Volumes/Kingston16"
+  # dest_red="/Volumes/ToshibaRD/" OR dest_blue="/Volumes/ToshibaBL/"
+  # e.g. do_backup_for_1_target "$source_path_black_usb" "black_usb_name" "$dest_red" "red_drive_name"
+  # e.g. do_backup_for_1_target "$source_path_black_usb" "black_usb_name" "$dest_blue" "blue_drive_name"
   local source_path=$1
   local source_name=$2
   
   local dest_path=$3
   local dest_name=$4
   
-  echo "BACKUP in progress..."
+  echo "$backup_started"
   echo
 
-  # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
-  # -v is verbose vs. -q, --quiet - to suppress non-error messages.
-  # > dry-run_Documents_to_RedHD.txt \
   rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
-  "$source_path" "$dest_path" \
-  > backup_USB_to_Hard_Drive.txt \
-  && echo "BACKUP DONE of $source_name -> $dest_name."
+  "${source_path}" "${dest_path}" \
+  > backup_"${source_name}"_to_"${dest_name}".txt \
+  && echo "${backup_in_progress}" "${source_name}" "->" "${dest_name}"
   echo
-  # TODO: Change .txt to increase in number when script runs? How else 2 files?
+}
+post_backup_summary() {
+  # e.g. post_backup_summary "$num_of_files_in_dest_blue_before_backup" "source_path_black_usb" "$black_usb_name" "$dest_blue" "$blue_drive_name"
+  local num_of_files_in_dest_before_backup=$1
+  local source_path=$2
+  local source_name=$3
+  local dest_path=$4
+  local dest_name=$5
+
+  num_of_files_in_dest_after_backup=$(count_files_dirs_etc "$dest_path")
+  print_number_of_files "$dest_path" "$num_of_files_in_dest_after_backup"
+
+  transferred_files_dirs_to_dest=$((num_of_files_in_dest_after_backup - num_of_files_in_dest_before_backup))
+  updated_files_dirs_to_dest=$(grep '^Number of files transferred' backup_"${source_name}"_to_"${dest_name}".txt | sed -E 's/^.*transferred: //')
+
+  echo "New files transferred to ${dest_name} is: ${transferred_files_dirs_to_dest}"
+  echo "Updated files to ${dest_name} is: ${updated_files_dirs_to_dest}"
+}
+
+calculate_processing_time() {
+  local time_end=$1
+  time_diff=$((time_end - time_start))
+  echo "Processing Time:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)"
+  echo
 }
 
 while true
@@ -108,10 +121,10 @@ clear
 cat <<MENU
 BACKUP the Contents from a Directory on your Laptop to a Storage Device
 -----------------------------------------------------------------------
-1. Backup laptop's Documents folder -> Red Toshiba & Blue Toshiba Hard Drives
-2. Backup laptop's PHOTOS folder -> Red Toshiba & Blue Toshiba Hard Drives
-3. Backup Black Kingston USB -> Red Toshiba Hard Drive
-4. Backup Black Kingston USB -> Blue Toshiba Hard Drive
+1. Backup laptop's Documents folder -> Red & Blue Hard Drives
+2. Backup laptop's PHOTOS folder -> Red & Blue Hard Drives
+3. Backup Black USB -> Red Hard Drive
+4. Backup Black USB -> Blue Hard Drive
 0. Quit
 -----------------------------------------------------------------------
 MENU
@@ -120,7 +133,7 @@ MENU
     PS3="Which backup are you doing? Type 1 to 4, or 0 to quit: "
 
     # -r - interpret backslash as part of the line, NOT as escape char.
-    # -p - execute read using prompt
+    # -p - execute read using prompt.
     read -r -p "Type an option number. Or type 0 or Q to exit: " option
     echo
 
@@ -128,32 +141,42 @@ MENU
     # contents to destination/target. Prevents copying a repeated directory.
     # Specifically here, copies from last item in source path to target's root &
     # creates the directory, if it doesn't already exist, e.g., creates Documents
-    # directory under /Volumes/ToshibaRD/, if there isn't one already .
+    # directory under /Volumes/ToshibaRD/, if there isn't one already.
     source_path_Documents="/Users/kimlew/Documents"
-    # source_path_Documents="/Users/kimlew/Documents/computer_website_camera_info/Camera/Canon_Rebel_T3i_Esst_Train_2011"
     source_path_PHOTOS="/Users/kimlew/PHOTOS"
     source_path_black_usb="/Volumes/Kingston16"
-    # "/Volumes/Kingston16/test_King_to_ToshibaBL"
-    # "/Volumes/Kingston16/test_King_to_ToshibaRD"
     
     dest_red="/Volumes/ToshibaRD/"
     dest_blue="/Volumes/ToshibaBL/"
+
+    Documents_dir_name="Documents"
+    PHOTOS_dir_name="PHOTOS"
+    black_usb_name="Black_USB"
+    red_drive_name="Red_HD"
+    blue_drive_name="Blue_HD"
+
+    before_backup="BEFORE BACKUP:"
+    after_backup="AFTER BACKUP:"
+    src_is="Source is:"
+    dest_is="Destination is:"
+    backup_started="BACKUP started..."
+    backup_in_progress="BACKUP in progress of"
 
     time_start=$(date +%s)
 
     case $option in
       1)
-        echo "YOU CHOSE: 1. Backup laptop's Documents folder -> Red Toshiba & Blue Toshiba"
-        echo "Source is: " "$source_path_Documents"
-        echo "Destination is: " "$dest_red"
-        echo "Destination is: " "$dest_blue"
+        echo "YOU CHOSE: 1. Backup Documents folder -> Red & Blue Hard Drives"
+        echo "$src_is" "$source_path_Documents"
+        echo "$dest_is" "$dest_red"
+        echo "$dest_is" "$dest_blue"
         echo
 
         check_if_directory "$source_path_Documents"
         check_if_directory "$dest_red"
         check_if_directory "$dest_blue"
 
-        echo "BEFORE BACKUP: "
+        echo "$before_backup "
         num_of_files_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
         print_number_of_files "$dest_red" "$num_of_files_in_dest_red_before_backup"
 
@@ -161,114 +184,95 @@ MENU
         print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_before_backup" 
         echo
         
-        # Pass 6 arguments with call of function, do_backup().
-        # Could also do this way:
-        # do_backup "$source_path_Documents" "nicename1" "$dest_red" "$nicename1"
-        # do_backup "$source_path_Documents" "nicename1" "$dest_blue" "$nicename2"
-        do_backup_for_2_targets "$source_path_Documents" "Documents" "$dest_red" "Red Toshiba Hard Drive" "$dest_blue" "Blue Toshiba Hard Drive"
+        # Pass arguments with paths & "nice" names with function call, e.g.,
+        # do_backup "$source_path_Documents" "$nicename1" "$dest_red" "$nicename1"
+        do_backup_for_2_targets "$source_path_Documents" "$Documents_dir_name"
 
-        echo "AFTER BACKUP: "
-        num_of_files_in_dest_red_after_backup=$(count_files_dirs_etc "$dest_red")
-        print_number_of_files "$dest_red" "$num_of_files_in_dest_red_after_backup"
-        num_of_files_in_dest_blue_after_backup=$(count_files_dirs_etc "$dest_blue")
-        print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_after_backup"
-
-        transferred_files_dirs_to_red=$((num_of_files_in_dest_red_after_backup - num_of_files_in_dest_red_before_backup))
-        transferred_files_dirs_to_blue=$((num_of_files_in_dest_blue_after_backup - num_of_files_in_dest_blue_before_backup))
-        updated_files_dirs_to_red=$(grep '^Number of files transferred' backup_Documents_to_RedHD.txt | sed -E 's/^.*transferred: //')
-        updated_files_dirs_to_blue=$(grep '^Number of files transferred' backup_Documents_to_BlueHD.txt | sed -E 's/^.*transferred: //')
-        
-        echo "New files transferred to $dest_red: " "$transferred_files_dirs_to_red"
-        echo "New files transferred to $dest_blue: " "$transferred_files_dirs_to_blue"
-        echo "Updated files to $dest_red: " "$updated_files_dirs_to_red"
-        echo "Updated files to $dest_blue: " "$updated_files_dirs_to_blue"
+        echo "$after_backup"
+        post_backup_summary "$num_of_files_in_dest_red_before_backup" "$source_path_Documents" "$Documents_dir_name" "$dest_red" "$red_drive_name"
+        post_backup_summary "$num_of_files_in_dest_blue_before_backup" "$source_path_Documents" "$Documents_dir_name" "$dest_blue" "$blue_drive_name"
 
         time_end=$(date +%s)
-        time_diff=$((time_end - time_start))
-        echo "Processing Time:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)"
-        echo
+        calculate_processing_time "$time_end"
         break
         ;;
       2) 
-        echo "YOU CHOSE: 2. Backup laptop's PHOTOS folder -> Red Toshiba & Blue Toshiba"
-        source_path_PHOTOS_valid=$(check_source "$source_path_PHOTOS")
-        dest_path_red_valid=$(check_destination "$dest_red")
-        dest_path_blue_valid=$(check_destination "$dest_blue")
+        echo "YOU CHOSE: 2. Backup PHOTOS folder -> Red & Blue Hard Drives"
+        echo "$src_is" "$source_path_PHOTOS"
+        echo "$dest_is" "$dest_red"
+        echo "$dest_is" "$dest_blue"
+        echo
 
-        if [[ "$source_path_PHOTOS_valid" == true && "$dest_path_red_valid" == true ]]; then
-            # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
-            # -v is verbose vs. -q, --quiet - to suppress non-error messages.
-            echo "Backup in progress..."
-            echo "..."
-            rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_PHOTOS" "$dest_red" \
-            && echo "Done PHOTOS backup to Red Toshiba."
-        fi
-        if [[ "$source_path_PHOTOS_valid" == true && "$dest_path_blue_valid" == true ]]; then
-            echo "Backup in progress..."
-            echo "..."
-            rsync -av --exclude={'.Spotlight-V100','.Trashes','.fseventsd'} \
-            "$source_path_PHOTOS" "$dest_blue" \
-            && echo "Done PHOTOS backup to Blue Toshiba."
-        fi
+        check_if_directory "$source_path_PHOTOS"
+        check_if_directory "$dest_red"
+        check_if_directory "$dest_blue"
+
+        echo "$before_backup"
+        num_of_files_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
+        print_number_of_files "$dest_red" "$num_of_files_in_dest_red_before_backup"
+
+        num_of_files_in_dest_blue_before_backup=$(count_files_dirs_etc "$dest_blue")
+        print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_before_backup" 
+        echo
+
+        do_backup_for_2_targets "$source_path_PHOTOS" "$PHOTOS_dir_name"
+
+        echo "$after_backup"
+        post_backup_summary "$num_of_files_in_dest_red_before_backup" "$source_path_PHOTOS" "$PHOTOS_dir_name" "$dest_red" "$red_drive_name"
+        post_backup_summary "$num_of_files_in_dest_blue_before_backup" "$source_path_PHOTOS" "$PHOTOS_dir_name" "$dest_blue" "$blue_drive_name"
+
+        time_end=$(date +%s)
+        calculate_processing_time "$time_end"
         break
         ;;
       3)
-        echo "YOU CHOSE: 3. Backup Black Kingston USB -> Red Toshiba"
+        echo "YOU CHOSE: 3. Backup Black USB -> Red Hard Drive"
         # If the function call is successful, it continues with next line.
         # If the function call is UNsuccessful, the function already gave user
         # an invalid directory message & quit the process, so you have to choose
         # a menu item again.
-        echo "Source is: " "$source_path_black_usb"
-        echo "Destination is :" "$dest_red"
+        echo "$src_is" "$source_path_black_usb"
+        echo "$dest_is" "$dest_red"
         echo
 
         check_if_directory "$source_path_black_usb"
         check_if_directory "$dest_red"
 
-        number_of_files_dirs_etc_in_src=$(count_files_dirs_etc "$source_path_black_usb")
-        echo "Number of files, dirs, symlinks, etc. in source path: " "$number_of_files_dirs_etc_in_src"
+        echo "$before_backup"
+        num_of_files_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
+        print_number_of_files "$dest_red" "$num_of_files_in_dest_red_before_backup"
         echo
         
-        echo "BACKUP in progress..."
-        echo
-        
-        rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
-        "$source_path_black_usb" "$dest_red" \
-        && echo \
-        && echo "BACKUP DONE of Black Kingston USB -> Red Toshiba."
-        
+        do_backup_for_1_target "$source_path_black_usb" "$black_usb_name" "$dest_red" "$red_drive_name"
+
+        echo "$after_backup"
+        post_backup_summary "$num_of_files_in_dest_red_before_backup" "$source_path_black_usb" "$black_usb_name" "$dest_red" "$red_drive_name"
+
         time_end=$(date +%s)
-        time_diff=$((time_end - time_start))
-        echo "Processing files took:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)" 
-        echo
+        calculate_processing_time "$time_end"
         break
         ;;
       4) 
-        echo "YOU CHOSE: 4. Backup Black Kingston USB -> Blue Toshiba"
-        echo "Source is: " "$source_path_black_usb"
-        echo "Destination is: " "$dest_blue"
+        echo "YOU CHOSE: 4. Backup Black USB -> Blue Hard Drive"
+        echo "$src_is" "$source_path_black_usb"
+        echo "$dest_is" "$dest_blue"
         echo
 
         check_if_directory "$source_path_black_usb"
         check_if_directory "$dest_blue"
 
-        number_of_files_dirs_etc_in_src=$(count_files_dirs_etc "$source_path_black_usb")
-        echo "Number of files, dirs, symlinks, etc. in source path: " "$number_of_files_dirs_etc_in_src"
+        echo "$before_backup"
+        num_of_files_in_dest_blue_before_backup=$(count_files_dirs_etc "$dest_blue")
+        print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_before_backup"
         echo
         
-        echo "BACKUP in progress..."
-        echo
+        do_backup_for_1_target "$source_path_black_usb" "$black_usb_name" "$dest_blue" "$blue_drive_name"
 
-        rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
-        "$source_path_black_usb" "$dest_blue" \
-        && echo \
-        && echo "BACKUP DONE of Black Kingston USB -> Blue Toshiba."
+        echo "$after_backup"
+        post_backup_summary "$num_of_files_in_dest_blue_before_backup" "$source_path_black_usb" "$black_usb_name" "$dest_blue" "$blue_drive_name"
 
         time_end=$(date +%s)
-        time_diff=$((time_end - time_start))
-        echo "Processing files took:" $((time_diff/60)) "min(s)" $((time_diff%60)) "sec(s)" 
-        echo
+        calculate_processing_time "$time_end"
         break
         ;;
       0 | [Qq])
