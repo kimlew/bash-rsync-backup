@@ -191,9 +191,6 @@ MENU
         echo "$after_backup"
         post_backup_summary "$num_of_files_in_dest_red_before_backup" "$source_path_Documents" "$Documents_dir_name" "$dest_red" "$red_drive_name"
         post_backup_summary "$num_of_files_in_dest_blue_before_backup" "$source_path_Documents" "$Documents_dir_name" "$dest_blue" "$blue_drive_name"
-
-        time_end=$(date +%s)
-        calculate_processing_time "$time_end"
         break
         ;;
       2) 
@@ -220,9 +217,6 @@ MENU
         echo "$after_backup"
         post_backup_summary "$num_of_files_in_dest_red_before_backup" "$source_path_PHOTOS" "$PHOTOS_dir_name" "$dest_red" "$red_drive_name"
         post_backup_summary "$num_of_files_in_dest_blue_before_backup" "$source_path_PHOTOS" "$PHOTOS_dir_name" "$dest_blue" "$blue_drive_name"
-
-        time_end=$(date +%s)
-        calculate_processing_time "$time_end"
         break
         ;;
       3)
@@ -247,9 +241,6 @@ MENU
 
         echo "$after_backup"
         post_backup_summary "$num_of_files_in_dest_red_before_backup" "$source_path_black_usb" "$black_usb_name" "$dest_red" "$red_drive_name"
-
-        time_end=$(date +%s)
-        calculate_processing_time "$time_end"
         break
         ;;
       4) 
@@ -270,14 +261,11 @@ MENU
 
         echo "$after_backup"
         post_backup_summary "$num_of_files_in_dest_blue_before_backup" "$source_path_black_usb" "$black_usb_name" "$dest_blue" "$blue_drive_name"
-
-        time_end=$(date +%s)
-        calculate_processing_time "$time_end"
         break
         ;;
       0 | [Qq])
         echo "You chose: 0. Quit"
-        break
+        exit 1
         ;;
       *)
         echo "Not a valid choice. Type a valid option number."
@@ -285,5 +273,8 @@ MENU
         ;;
   esac
 done
+
+time_end=$(date +%s)
+calculate_processing_time "$time_end"
 
 exit 0
