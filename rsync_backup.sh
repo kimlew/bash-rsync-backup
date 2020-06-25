@@ -72,22 +72,30 @@ do_backup_for_1_target() {
   # For Case 3, Black USB -> Red HD & Case 4, Black USB -> Blue HD. Passes in:
   # source_path_black_usb="/Volumes/Kingston16"
   # dest_red="/Volumes/ToshibaRD/" OR dest_blue="/Volumes/ToshibaBL/"
-  # e.g. do_backup_for_1_target "$source_path_black_usb" "black_usb_name" "$dest_red" "red_drive_name"
-  # e.g. do_backup_for_1_target "$source_path_black_usb" "black_usb_name" "$dest_blue" "blue_drive_name"
+  # e.g. do_backup_for_1_target "$source_path_black_usb" "$black_usb_name" "$dest_red" "$red_drive_name"
+  # e.g. do_backup_for_1_target "$source_path_black_usb" "$black_usb_name" "$dest_blue" "$blue_drive_name"
   local source_path=$1
   local source_name=$2
   
   local dest_path=$3
   local dest_name=$4
   
-  echo "$backup_started"
+  echo "$before_backup"
+  
+  local num_of_files_in_dest_before_backup
+  num_of_files_in_dest_before_backup="$(count_files_dirs_etc "$dest_path")"
+  print_number_of_files "$dest_path" "$num_of_files_in_dest_before_backup"
   echo
 
+  echo "$backup_started"
   rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
   "${source_path}" "${dest_path}" \
   > backup_"${source_name}"_to_"${dest_name}".txt \
   && echo "${backup_in_progress}" "${source_name}" "->" "${dest_name}"
   echo
+
+  echo "$after_backup"
+  post_backup_summary "$num_of_files_in_dest_before_backup" "$source_path" "$source_name" "$dest_path" "$dest_name"
 }
 post_backup_summary() {
   # e.g. post_backup_summary "$num_of_files_in_dest_blue_before_backup" "source_path_black_usb" "$black_usb_name" "$dest_blue" "$blue_drive_name"
@@ -221,26 +229,12 @@ MENU
         ;;
       3)
         echo "YOU CHOSE: 3. Backup Black USB -> Red Hard Drive"
-        # If the function call is successful, it continues with next line.
-        # If the function call is UNsuccessful, the function already gave user
-        # an invalid directory message & quit the process, so you have to choose
-        # a menu item again.
         echo "$src_is" "$source_path_black_usb"
         echo "$dest_is" "$dest_red"
         echo
-
         check_if_directory "$source_path_black_usb"
         check_if_directory "$dest_red"
-
-        echo "$before_backup"
-        num_of_files_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
-        print_number_of_files "$dest_red" "$num_of_files_in_dest_red_before_backup"
-        echo
-        
         do_backup_for_1_target "$source_path_black_usb" "$black_usb_name" "$dest_red" "$red_drive_name"
-
-        echo "$after_backup"
-        post_backup_summary "$num_of_files_in_dest_red_before_backup" "$source_path_black_usb" "$black_usb_name" "$dest_red" "$red_drive_name"
         break
         ;;
       4) 
@@ -248,19 +242,9 @@ MENU
         echo "$src_is" "$source_path_black_usb"
         echo "$dest_is" "$dest_blue"
         echo
-
         check_if_directory "$source_path_black_usb"
         check_if_directory "$dest_blue"
-
-        echo "$before_backup"
-        num_of_files_in_dest_blue_before_backup=$(count_files_dirs_etc "$dest_blue")
-        print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_before_backup"
-        echo
-        
         do_backup_for_1_target "$source_path_black_usb" "$black_usb_name" "$dest_blue" "$blue_drive_name"
-
-        echo "$after_backup"
-        post_backup_summary "$num_of_files_in_dest_blue_before_backup" "$source_path_black_usb" "$black_usb_name" "$dest_blue" "$blue_drive_name"
         break
         ;;
       0 | [Qq])
