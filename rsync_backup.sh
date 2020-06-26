@@ -47,16 +47,24 @@ print_number_of_files() {
 }
 
 do_backup_for_2_targets() {
-  # For Case 1, Documents -> Red & Blue HDs & Case2, PHOTOS -> Red & Blue HDs.
+  # For Case 1, Documents -> Red & Blue HDs & Case2. Passes in:
+  # e.g. do_backup_for_2_targets "$source_path_Documents" "$Documents_dir_name"
+  # For Case 2, PHOTOS -> Red & Blue HDs. Passes in:
+  # e.g. do_backup_for_2_targets "$source_path_PHOTOS" "$PHOTOS_dir_name"
   local source_path=$1
   local source_name=$2
   
-  echo "$backup_started"
+  echo "$before_backup "
+  num_of_files_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
+  print_number_of_files "$dest_red" "$num_of_files_in_dest_red_before_backup"
+
+  num_of_files_in_dest_blue_before_backup=$(count_files_dirs_etc "$dest_blue")
+  print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_before_backup" 
   echo
+  echo "$backup_started"
 
   # -a, --archive - archive mode; same as -rlptgoD (no -H). -a implies -r.
   # -v is verbose vs. -q, --quiet - to suppress non-error messages.
-  # > dry-run_Documents_to_RedHD.txt \
   rsync -avi --progress --stats --exclude={'.DocumentRevisions-V100','.TemporaryItems','.Spotlight-V100','.Trashes','.fseventsd'} \
   "${source_path}" "${dest_red}" \
   > backup_"${source_name}"_to_"${red_drive_name}".txt \
@@ -67,7 +75,11 @@ do_backup_for_2_targets() {
   > backup_"${source_name}"_to_"${blue_drive_name}".txt \
   && echo "${backup_in_progress}" "${source_name}" "->" "${blue_drive_name}"
   echo
+  echo "$after_backup"
+  post_backup_summary "$num_of_files_in_dest_red_before_backup" "$source_path" "$source_name" "$dest_red" "$red_drive_name"
+  post_backup_summary "$num_of_files_in_dest_blue_before_backup" "$source_path" "$source_name" "$dest_blue" "$blue_drive_name"
 }
+
 do_backup_for_1_target() {
   # For Case 3, Black USB -> Red HD & Case 4, Black USB -> Blue HD. Passes in:
   # source_path_black_usb="/Volumes/Kingston16"
@@ -179,26 +191,12 @@ MENU
         echo "$dest_is" "$dest_red"
         echo "$dest_is" "$dest_blue"
         echo
-
         check_if_directory "$source_path_Documents"
         check_if_directory "$dest_red"
         check_if_directory "$dest_blue"
-
-        echo "$before_backup "
-        num_of_files_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
-        print_number_of_files "$dest_red" "$num_of_files_in_dest_red_before_backup"
-
-        num_of_files_in_dest_blue_before_backup=$(count_files_dirs_etc "$dest_blue")
-        print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_before_backup" 
-        echo
-        
         # Pass arguments with paths & "nice" names with function call, e.g.,
-        # do_backup "$source_path_Documents" "$nicename1" "$dest_red" "$nicename1"
+        # do_backup "$source_path_Documents" "$nicename1"
         do_backup_for_2_targets "$source_path_Documents" "$Documents_dir_name"
-
-        echo "$after_backup"
-        post_backup_summary "$num_of_files_in_dest_red_before_backup" "$source_path_Documents" "$Documents_dir_name" "$dest_red" "$red_drive_name"
-        post_backup_summary "$num_of_files_in_dest_blue_before_backup" "$source_path_Documents" "$Documents_dir_name" "$dest_blue" "$blue_drive_name"
         break
         ;;
       2) 
@@ -207,24 +205,10 @@ MENU
         echo "$dest_is" "$dest_red"
         echo "$dest_is" "$dest_blue"
         echo
-
         check_if_directory "$source_path_PHOTOS"
         check_if_directory "$dest_red"
         check_if_directory "$dest_blue"
-
-        echo "$before_backup"
-        num_of_files_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
-        print_number_of_files "$dest_red" "$num_of_files_in_dest_red_before_backup"
-
-        num_of_files_in_dest_blue_before_backup=$(count_files_dirs_etc "$dest_blue")
-        print_number_of_files "$dest_blue" "$num_of_files_in_dest_blue_before_backup" 
-        echo
-
         do_backup_for_2_targets "$source_path_PHOTOS" "$PHOTOS_dir_name"
-
-        echo "$after_backup"
-        post_backup_summary "$num_of_files_in_dest_red_before_backup" "$source_path_PHOTOS" "$PHOTOS_dir_name" "$dest_red" "$red_drive_name"
-        post_backup_summary "$num_of_files_in_dest_blue_before_backup" "$source_path_PHOTOS" "$PHOTOS_dir_name" "$dest_blue" "$blue_drive_name"
         break
         ;;
       3)
