@@ -53,6 +53,14 @@ do_backup_for_2_targets() {
   # e.g. do_backup_for_2_targets "$source_path_PHOTOS" "$PHOTOS_dir_name"
   local source_path=$1
   local source_name=$2
+
+  echo "$src_is" "$source_path"
+  echo "$dest_is" "$dest_red"
+  echo "$dest_is" "$dest_blue"
+  echo
+  check_if_directory "$source_path"
+  check_if_directory "$dest_red"
+  check_if_directory "$dest_blue"
   
   echo "$before_backup "
   num_of_files_in_dest_red_before_backup=$(count_files_dirs_etc "$dest_red")
@@ -192,13 +200,6 @@ MENU
     case $option in
       1)
         echo "YOU CHOSE: 1. Backup Documents folder -> Red & Blue Hard Drives"
-        echo "$src_is" "$source_path_Documents"
-        echo "$dest_is" "$dest_red"
-        echo "$dest_is" "$dest_blue"
-        echo
-        check_if_directory "$source_path_Documents"
-        check_if_directory "$dest_red"
-        check_if_directory "$dest_blue"
         # Pass arguments with paths & "nice" names with function call, e.g.,
         # do_backup "$source_path_Documents" "$nicename1"
         do_backup_for_2_targets "$source_path_Documents" "$Documents_dir_name"
@@ -206,13 +207,6 @@ MENU
         ;;
       2) 
         echo "YOU CHOSE: 2. Backup PHOTOS folder -> Red & Blue Hard Drives"
-        echo "$src_is" "$source_path_PHOTOS"
-        echo "$dest_is" "$dest_red"
-        echo "$dest_is" "$dest_blue"
-        echo
-        check_if_directory "$source_path_PHOTOS"
-        check_if_directory "$dest_red"
-        check_if_directory "$dest_blue"
         do_backup_for_2_targets "$source_path_PHOTOS" "$PHOTOS_dir_name"
         break
         ;;
