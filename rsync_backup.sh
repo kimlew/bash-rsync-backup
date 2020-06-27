@@ -92,8 +92,13 @@ do_backup_for_1_target() {
   local dest_path=$3
   local dest_name=$4
   
+  echo "$src_is" "$source_path"
+  echo "$dest_is" "$dest_path"
+  echo
+  check_if_directory "$source_path"
+  check_if_directory "$dest_path"
+
   echo "$before_backup"
-  
   local num_of_files_in_dest_before_backup
   num_of_files_in_dest_before_backup="$(count_files_dirs_etc "$dest_path")"
   print_number_of_files "$dest_path" "$num_of_files_in_dest_before_backup"
@@ -213,21 +218,11 @@ MENU
         ;;
       3)
         echo "YOU CHOSE: 3. Backup Black USB -> Red Hard Drive"
-        echo "$src_is" "$source_path_black_usb"
-        echo "$dest_is" "$dest_red"
-        echo
-        check_if_directory "$source_path_black_usb"
-        check_if_directory "$dest_red"
         do_backup_for_1_target "$source_path_black_usb" "$black_usb_name" "$dest_red" "$red_drive_name"
         break
         ;;
       4) 
         echo "YOU CHOSE: 4. Backup Black USB -> Blue Hard Drive"
-        echo "$src_is" "$source_path_black_usb"
-        echo "$dest_is" "$dest_blue"
-        echo
-        check_if_directory "$source_path_black_usb"
-        check_if_directory "$dest_blue"
         do_backup_for_1_target "$source_path_black_usb" "$black_usb_name" "$dest_blue" "$blue_drive_name"
         break
         ;;
