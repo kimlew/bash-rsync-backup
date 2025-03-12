@@ -155,9 +155,10 @@ cat <<MENU
 BACKUP the Contents from a Directory on your Laptop to a Storage Device
 -----------------------------------------------------------------------
 1. Backup laptop's Documents folder -> Red & Blue Hard Drives
-2. Backup laptop's PHOTOS folder -> Red & Blue Hard Drives
+2. Backup laptop's Pictures folder -> Red & Blue Hard Drives
 3. Backup Black USB -> Red Hard Drive
 4. Backup Black USB -> Blue Hard Drive
+5. Backup laptop's PHOTOS folder -> Red & Blue Hard Drives
 0. Quit
 -----------------------------------------------------------------------
 MENU
@@ -176,6 +177,7 @@ MENU
     # creates the directory, if it doesn't already exist, e.g., creates Documents
     # directory under /Volumes/ToshibaRD/, if there isn't one already.
     source_path_Documents="/Users/kimlew/Documents"
+    source_path_Pictures="/Users/kimlew/Pictures"
     source_path_PHOTOS="/Users/kimlew/PHOTOS"
     source_path_black_usb="/Volumes/Kingston16"
     
@@ -183,10 +185,11 @@ MENU
     dest_blue="/Volumes/ToshibaBL/"
 
     Documents_dir_name="Documents"
-    PHOTOS_dir_name="PHOTOS"
+    Pictures_dir_name="Pictures"
     black_usb_name="Black_USB"
     red_drive_name="Red_HD"
     blue_drive_name="Blue_HD"
+    PHOTOS_dir_name="PHOTOS"
 
     before_backup="BEFORE BACKUP:"
     after_backup="AFTER BACKUP:"
@@ -206,8 +209,8 @@ MENU
         break
         ;;
       2) 
-        echo "YOU CHOSE: 2. Backup PHOTOS folder -> Red & Blue Hard Drives"
-        do_backup_for_2_targets "$source_path_PHOTOS" "$PHOTOS_dir_name"
+        echo "YOU CHOSE: 2. Backup Pictures folder -> Red & Blue Hard Drives"
+        do_backup_for_2_targets "$source_path_Pictures" "$Pictures_dir_name"
         break
         ;;
       3)
@@ -220,6 +223,12 @@ MENU
         do_backup_for_1_target "$source_path_black_usb" "$black_usb_name" "$dest_blue" "$blue_drive_name"
         break
         ;;
+      5)
+        echo "YOU CHOSE: 5. Backup PHOTOS folder -> Red & Blue Hard Drives"
+        do_backup_for_2_targets "$source_path_PHOTOS" "$PHOTOS_dir_name"
+        break
+        ;;
+
       0 | [Qq])
         echo "You chose: 0. Quit"
         exit 1
